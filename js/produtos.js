@@ -25,6 +25,16 @@ const CATEGORIAS = {
   acessorios: "Acessórios",
 };
 
+/*
+ * Guia de medidas por categoria, em centímetros, medindo a peça esticada na mesa.
+ * ATENÇÃO: medidas aproximadas de referência. Confirme com as peças da loja.
+ */
+const MEDIDAS = {
+  shorts: { colunas: ["Cintura", "Quadril", "Comprimento"], linhas: { P: [38, 50, 44], M: [40, 53, 45], G: [43, 56, 46], GG: [46, 59, 47], 38: [38, 50, 52], 40: [40, 52, 53], 42: [42, 54, 54], 44: [44, 56, 55], 46: [46, 58, 56] } },
+  camisas: { colunas: ["Peito", "Comprimento", "Ombro"], linhas: { P: [50, 70, 44], M: [53, 72, 46], G: [56, 74, 48], GG: [59, 76, 50] } },
+  feminino: { colunas: ["Busto", "Cintura", "Quadril"], linhas: { P: [84, 66, 92], M: [90, 72, 98], G: [96, 78, 104] } },
+};
+
 const PRODUTOS = [
   {
     id: "short-sarja-madrid",

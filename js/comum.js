@@ -9,6 +9,14 @@ window.FFN = (() => {
   const semAcento = (s) => String(s).normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
   const porId = (id) => PRODUTOS.find((p) => p.id === id);
 
+  // cor das bolinhas de cada nome de cor
+  const CORES = {
+    preto: "#151515", branco: "#ffffff", gelo: "#e6eaec", "off-white": "#f3efe6", cinza: "#8a8f94", mescla: "#b9babb",
+    marrom: "#6b4430", bege: "#d8c3a2", areia: "#d9c6a4", "azul-marinho": "#1f2a44", azul: "#4a76a8",
+    verde: "#2f5d46", "verde-oliva": "#6b7046", rosa: "#e8a0b4",
+  };
+  const corDe = (nome) => CORES[semAcento(nome)] || "conic-gradient(#e8a0b4, #4a76a8, #c9a14a, #2f5d46, #e8a0b4)";
+
   const midia = (p) =>
     p.imagem
       ? `<img src="${esc(p.imagem)}" alt="${esc(p.nome)}" loading="lazy">`
@@ -119,5 +127,5 @@ window.FFN = (() => {
     el.textContent = partes.join(" · ");
   });
 
-  return { WHATSAPP, brl, esc, semAcento, porId, midia, carregarSacola, salvarSacola, totalSacola, qtdSacola, pesoSacola, linkWhats, htmlItens, editarItem, ETAPAS, NOMES, nomeStatus, linkAcompanhar, dataHora, demo };
+  return { corDe, WHATSAPP, brl, esc, semAcento, porId, midia, carregarSacola, salvarSacola, totalSacola, qtdSacola, pesoSacola, linkWhats, htmlItens, editarItem, ETAPAS, NOMES, nomeStatus, linkAcompanhar, dataHora, demo };
 })();

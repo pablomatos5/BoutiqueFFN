@@ -228,16 +228,23 @@
       <div class="modal__info">
         <p class="eyebrow" id="modalCategoria"></p>
         <h2 id="modalNome"></h2>
-        <p class="preco" id="modalPreco"></p>
+        <div class="modal__preco-linha">
+          <p class="preco" id="modalPreco"></p>
+          <button type="button" class="compartilhar" id="compartilhar" aria-label="Compartilhar esta peça">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></svg>
+            Compartilhar
+          </button>
+        </div>
         <p id="modalDescricao"></p>
         <fieldset class="opcoes">
           <legend>Cor</legend>
           <div class="chips" id="modalCores"></div>
         </fieldset>
         <fieldset class="opcoes">
-          <legend>Tamanho</legend>
+          <legend>Tamanho <button type="button" class="link-medidas" id="verMedidas" aria-expanded="false" aria-controls="guiaMedidas">📏 Guia de medidas</button></legend>
           <div class="chips" id="modalTamanhos"></div>
         </fieldset>
+        <div class="guia-medidas" id="guiaMedidas" hidden></div>
         <div class="qtd-linha">
           <div class="qtd" aria-label="Quantidade">
             <button type="button" id="qtdMenos" aria-label="Diminuir">−</button>

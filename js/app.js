@@ -122,12 +122,30 @@
   const escolha = { produto: null, cor: null, tamanho: null, qtd: 1 };
 
   function chipsOpcao(lista, tipo) {
-    return lista.map((v) => `<button type="button" class="chip" data-${tipo}="${esc(v)}" aria-pressed="false">${esc(v)}</button>`).join("");
+    return lista
+      .map((v) => `<button type="button" class="chip${tipo === "cor" ? " chip--cor" : ""}" data-${tipo}="${esc(v)}" aria-pressed="false">${tipo === "cor" ? `<span class="bolinha" style="background:${FFN.corDe(v)}"></span>` : ""}${esc(v)}</button>`)
+      .join("");
   }
 
-  function abrirProduto(id) {
+  function guiaMedidas(p) {
+    const m = MEDIDAS[p.categoria];
+    const linhas = m && p.tamanhos.filter((t) => m.linhas[t]);
+    if (!linhas?.length) return "";
+    return `<table><thead><tr><th>Tam.</th>${m.colunas.map((c) => `<th>${esc(c)}</th>`).join("")}</tr></thead>
+      <tbody>${linhas.map((t) => `<tr><th>${esc(t)}</th>${m.linhas[t].map((v) => `<td>${v}</td>`).join("")}</tr>`).join("")}</tbody></table>
+      <p>Medidas da peça em centímetros, aproximadas. Na dúvida, chama no WhatsApp que a gente ajuda a escolher.</p>`;
+  }
+
+  function abrirProduto(id, { doEndereco = false } = {}) {
     const p = porId(id);
     if (!p) return;
+    // cada peça tem seu link (?produto=...): dá para mandar no WhatsApp e nos Stories, e o "voltar" do celular fecha a peça
+    const url = new URL(location.href);
+    url.searchParams.set("produto", id);
+    url.hash = "";
+    if (doEndereco || history.state?.produto) history.replaceState({ produto: id, empurrado: history.state?.empurrado }, "", url);
+    else history.pushState({ produto: id, empurrado: true }, "", url);
+    document.title = `${p.nome} · Boutique FFN`;
     Object.assign(escolha, {
       produto: p,
       cor: p.cores.length === 1 ? p.cores[0] : null,
@@ -141,6 +159,11 @@
     $("#modalDescricao").textContent = p.descricao;
     $("#modalCores").innerHTML = chipsOpcao(p.cores, "cor");
     $("#modalTamanhos").innerHTML = chipsOpcao(p.tamanhos, "tamanho");
+    const guia = guiaMedidas(p);
+    $("#guiaMedidas").innerHTML = guia;
+    $("#guiaMedidas").hidden = true;
+    $("#verMedidas").hidden = !guia;
+    $("#verMedidas").setAttribute("aria-expanded", "false");
     $("#modalAviso").textContent = "";
     atualizarEscolha();
     modal.showModal();
@@ -163,6 +186,44 @@
   $("#qtdMenos").addEventListener("click", () => { escolha.qtd = Math.max(1, escolha.qtd - 1); atualizarEscolha(); });
   $("#qtdMais").addEventListener("click", () => { escolha.qtd = Math.min(20, escolha.qtd + 1); atualizarEscolha(); });
   modal.addEventListener("click", (e) => { if (e.target === modal) modal.close(); });
+
+  const TITULO = document.title;
+  let fechandoPeloVoltar = false;
+  modal.addEventListener("close", () => {
+    document.title = TITULO;
+    if (fechandoPeloVoltar) { fechandoPeloVoltar = false; return; }
+    // só volta no histórico se foi o site que abriu a peça; quem chegou pelo link fica na loja
+    if (history.state?.empurrado) history.back();
+    else {
+      const url = new URL(location.href);
+      url.searchParams.delete("produto");
+      history.replaceState(null, "", url);
+    }
+  });
+  addEventListener("popstate", () => {
+    if (modal.open && !history.state?.produto) { fechandoPeloVoltar = true; modal.close(); }
+  });
+
+  $("#verMedidas").addEventListener("click", () => {
+    const guia = $("#guiaMedidas");
+    guia.hidden = !guia.hidden;
+    $("#verMedidas").setAttribute("aria-expanded", String(!guia.hidden));
+  });
+
+  $("#compartilhar").addEventListener("click", async () => {
+    const p = escolha.produto;
+    const url = new URL(location.href);
+    url.searchParams.set("produto", p.id);
+    const dados = { title: `${p.nome} · Boutique FFN`, text: `Olha esse ${p.nome} da Boutique FFN 🐼`, url: url.href };
+    try {
+      if (navigator.share) await navigator.share(dados);
+      else {
+        await navigator.clipboard.writeText(url.href);
+        $("#compartilhar").lastChild.textContent = " Link copiado!";
+        setTimeout(() => ($("#compartilhar").lastChild.textContent = " Compartilhar"), 2000);
+      }
+    } catch { /* cliente cancelou */ }
+  });
 
   $("#adicionarSacola").addEventListener("click", () => {
     if (!escolha.cor || !escolha.tamanho) {
@@ -247,4 +308,6 @@
   montarAbasCategoria();
   renderVitrine();
   renderSacola();
+  const produtoNoLink = new URLSearchParams(location.search).get("produto");
+  if (produtoNoLink && porId(produtoNoLink)) abrirProduto(produtoNoLink, { doEndereco: true });
 })();
