@@ -52,7 +52,7 @@ Fonte: perfil [@boutiqueficafeionunca_](https://www.instagram.com/boutiqueficafe
 ## Pendências com o cliente
 
 1. **Preços reais** de cada peça (os do site são provisórios).
-2. **Logo em vetor** (SVG/AI/PDF) do FFN e do panda. O site usa versões recriadas.
+2. **Logo em vetor** (SVG/AI/PDF) do FFN. O panda foi vetorizado da foto de perfil da loja (`assets/img/panda.svg` e `panda-solo.svg`); com o arquivo original ele fica ainda mais fiel.
 3. **Fotos de produto** para as peças sem imagem (fundo neutro, mesmo ângulo).
 4. **Credenciais do contrato com os Correios** (usuário, código de acesso da API e cartão de postagem) para ativar o cálculo do frete.
 5. Domínio desejado (ex.: `boutiqueffn.com.br`).
