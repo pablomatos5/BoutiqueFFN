@@ -27,7 +27,8 @@
       body: corpo ? JSON.stringify(corpo) : undefined,
       cache: "no-store",
     });
-    if (r.status === 404 && !r.headers.get("content-type")?.includes("json")) throw Object.assign(new Error("sem servidor"), { semServidor: true });
+    // sem servidor (prévia estática, GitHub Pages): a resposta não é JSON (404 ou 405)
+    if (!r.headers.get("content-type")?.includes("json")) throw Object.assign(new Error("sem servidor"), { semServidor: true });
     const dados = await r.json().catch(() => ({}));
     if (r.status === 401 && acao !== "entrar") { sair(); throw new Error("Sessão expirada. Entre novamente."); }
     if (r.status === 503) throw Object.assign(new Error(dados.erro), { semServidor: true });

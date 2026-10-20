@@ -29,7 +29,8 @@
           const resp = chave
             ? await fetch(`api/pedido?pedido=${encodeURIComponent(id)}&chave=${encodeURIComponent(chave)}`, { cache: "no-store" })
             : await fetch("api/pedido", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ pedido: id, cpf }) });
-          if (resp.status === 503 || resp.status === 404 && !resp.headers.get("content-type")?.includes("json")) modoDemo = true;
+          // sem servidor (prévia estática, GitHub Pages): a resposta não é JSON (404 ou 405)
+          if (resp.status === 503 || !resp.headers.get("content-type")?.includes("json")) modoDemo = true;
           else {
             const dados = await resp.json();
             if (!resp.ok) throw new Error(dados.erro);

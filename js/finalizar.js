@@ -219,7 +219,7 @@
       let r;
       try {
         const resp = await fetch(`api/cupom?codigo=${encodeURIComponent(codigo)}&subtotal=${sub.toFixed(2)}`, { cache: "no-store" });
-        if (resp.status === 503 || (resp.status === 404 && !resp.headers.get("content-type")?.includes("json"))) throw new TypeError("sem servidor");
+        if (resp.status === 503 || !resp.headers.get("content-type")?.includes("json")) throw new TypeError("sem servidor");
         r = await resp.json();
         if (!resp.ok) throw new Error(r.erro);
       } catch (e) {
