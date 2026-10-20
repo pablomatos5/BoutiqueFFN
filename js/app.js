@@ -347,7 +347,7 @@
     cotacao = null;
     $("#freteOpcoes").innerHTML = "";
     $("#enderecoCampos").hidden = true;
-    statusFrete("Consultando CEP…");
+    statusFrete("O panda tá consultando o CEP…");
 
     let local;
     try {
@@ -365,7 +365,7 @@
     if (ehCameta(local)) {
       cotacao = { cep, local, gratis: true };
     } else {
-      statusFrete("Calculando frete nos Correios…");
+      statusFrete("O panda tá calculando o frete nos Correios…");
       let opcoes = [];
       try {
         const r = await fetch(`api/frete?cep=${cep}&peso=${pesoSacola()}`);
