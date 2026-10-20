@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boutique FFN · Fica Feio Nunca | Moda masculina e feminina em Cametá-PA</title>
+  <meta name="description" content="Boutique FFN, a Fica Feio Nunca: moda masculina e feminina, shorts de sarja, linho e peças Lupo. Loja física em Cametá-PA e compra online pelo WhatsApp.">
+  <meta name="theme-color" content="#0e1613">
+  <meta property="og:title" content="Boutique FFN · Fica Feio Nunca">
+  <meta property="og:description" content="Moda masculina e feminina em Cametá-PA. Escolha online e finalize pelo WhatsApp.">
+  <meta property="og:image" content="assets/img/fachada-loja.jpg">
+  <link rel="icon" href="assets/img/panda.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <div class="topbar">
+    <p>Compre pelo site e finalize no WhatsApp · Retire na loja ou receba em Cametá</p>
+  </div>
+
+  <header class="header">
+    <div class="container header__inner">
+      <a href="#inicio" class="logo" aria-label="Boutique FFN, início">
+        <span class="logo__top">Boutique</span>
+        <span class="logo__mark">FFN</span>
+        <span class="logo__bottom">Ficafeionunca</span>
+      </a>
+
+      <nav class="nav" id="nav" aria-label="Principal">
+        <a href="#loja">Loja</a>
+        <a href="#loja" data-filtro-categoria="shorts">Shorts</a>
+        <a href="#loja" data-filtro-publico="feminino">Feminino</a>
+        <a href="#loja" data-filtro-categoria="lupo">Lupo</a>
+        <a href="#visite">Visite a loja</a>
+      </nav>
+
+      <div class="header__actions">
+        <button class="icon-btn cart-btn" id="abrirCarrinho" aria-label="Abrir sacola">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 7h12l-1 13H7L6 7Z"/><path d="M9 7a3 3 0 0 1 6 0"/></svg>
+          <span class="cart-btn__count" id="contadorCarrinho">0</span>
+        </button>
+        <button class="icon-btn menu-btn" id="abrirMenu" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="inicio">
+
+    <section class="hero">
+      <div class="container hero__inner">
+        <div class="hero__text">
+          <p class="eyebrow">Cametá · PA · Loja física e virtual</p>
+          <h1>Na Boutique FFN, <em>seu estilo fala mais alto.</em></h1>
+          <p class="hero__lead">Moda masculina e feminina, shorts de sarja e linho e peças Lupo. Escolha aqui, finalize pelo WhatsApp e <strong>fica feio nunca</strong>.</p>
+          <div class="hero__cta">
+            <a href="#loja" class="btn btn--gold">Ver a coleção</a>
+            <a href="https://wa.me/5591985106107?text=Ol%C3%A1%2C%20Boutique%20FFN!%20Vim%20pelo%20site." class="btn btn--ghost" target="_blank" rel="noopener">Falar no WhatsApp</a>
+          </div>
+        </div>
+        <div class="hero__media">
+          <img src="assets/img/fachada-loja.jpg" alt="Fachada da Boutique FFN em Cametá, com o letreiro dourado e o panda" width="720" height="1280">
+          <img class="hero__panda" src="assets/img/panda.svg" alt="" aria-hidden="true">
+        </div>
+      </div>
+    </section>
+
+    <section class="categorias" aria-label="Categorias">
+      <div class="container categorias__grid">
+        <button class="cat" data-filtro-categoria="shorts"><span>Shorts &amp; Bermudas</span><small>Sarja · Linho</small></button>
+        <button class="cat" data-filtro-categoria="camisas"><span>Camisas</span><small>Básicas · Estampadas</small></button>
+        <button class="cat" data-filtro-publico="feminino"><span>Feminino</span><small>Fitness · Vestidos</small></button>
+        <button class="cat" data-filtro-categoria="lupo"><span>Lupo</span><small>Meias · Underwear</small></button>
+      </div>
+    </section>
+
+    <section class="loja" id="loja">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Coleção</p>
+          <h2>Escolha seus looks</h2>
+        </div>
+
+        <div class="filtros" role="search">
+          <div class="chips" id="chipsCategoria" role="group" aria-label="Filtrar por categoria"></div>
+          <div class="filtros__linha">
+            <div class="chips" id="chipsPublico" role="group" aria-label="Filtrar por público">
+              <button class="chip is-active" data-publico="todos">Todos</button>
+              <button class="chip" data-publico="masculino">Masculino</button>
+              <button class="chip" data-publico="feminino">Feminino</button>
+            </div>
+            <label class="busca">
+              <span class="sr-only">Buscar produto</span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg>
+              <input type="search" id="busca" placeholder="Buscar: short, linho, lupo…">
+            </label>
+          </div>
+        </div>
+
+        <div class="grid-produtos" id="gridProdutos" aria-live="polite"></div>
+        <p class="vazio" id="semResultados" hidden>Nenhuma peça encontrada. Chama no WhatsApp que a gente procura pra você!</p>
+      </div>
+    </section>
+
+    <section class="lupo-banner">
+      <div class="container lupo-banner__inner">
+        <div>
+          <p class="eyebrow">Revenda oficial na loja</p>
+          <h2>Peças <span class="gold">Lupo</span> na Boutique FFN</h2>
+          <p>Conforto, qualidade e muito estilo: meias, cuecas e underwear da Lupo, que você encontra aqui ao lado dos seus looks favoritos.</p>
+        </div>
+        <button class="btn btn--gold" data-filtro-categoria="lupo">Ver Lupo</button>
+      </div>
+    </section>
+
+    <section class="como" aria-labelledby="comoTitulo">
+      <div class="container">
+        <div class="section-head">
+          <p class="eyebrow">Simples assim</p>
+          <h2 id="comoTitulo">Como comprar</h2>
+        </div>
+        <ol class="passos">
+          <li><span>1</span><h3>Escolha</h3><p>Selecione cor e tamanho e coloque na sacola.</p></li>
+          <li><span>2</span><h3>Finalize</h3><p>Preencha seus dados. O pedido segue pronto para o nosso WhatsApp.</p></li>
+          <li><span>3</span><h3>Pague</h3><p>Pix, cartão ou dinheiro, combinados direto com a gente.</p></li>
+          <li><span>4</span><h3>Receba</h3><p>Retire na loja ou receba em casa em Cametá.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="visite" id="visite">
+      <div class="container visite__inner">
+        <div class="visite__text">
+          <p class="eyebrow">Loja física</p>
+          <h2>Vem conhecer a FFN</h2>
+          <address>
+            Rua 13 de Maio, Centro<br>
+            Em frente ao Hotel Aricurá<br>
+            Cametá · PA
+          </address>
+          <div class="hero__cta">
+            <a class="btn btn--gold" href="https://www.google.com/maps/search/?api=1&query=Rua+13+de+Maio+Hotel+Aricur%C3%A1+Camet%C3%A1+PA" target="_blank" rel="noopener">Como chegar</a>
+            <a class="btn btn--ghost" href="https://www.instagram.com/boutiqueficafeionunca_/" target="_blank" rel="noopener">@boutiqueficafeionunca_</a>
+          </div>
+        </div>
+        <img class="visite__panda" src="assets/img/panda.svg" alt="" aria-hidden="true">
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    <div class="container footer__inner">
+      <div class="logo logo--footer">
+        <span class="logo__top">Boutique</span>
+        <span class="logo__mark">FFN</span>
+        <span class="logo__bottom">Ficafeionunca</span>
+      </div>
+      <p>Moda masculina e feminina · Cametá-PA<br>
+        <a href="https://wa.me/5591985106107" target="_blank" rel="noopener">WhatsApp (91) 98510-6107</a> ·
+        <a href="https://www.instagram.com/boutiqueficafeionunca_/" target="_blank" rel="noopener">Instagram</a>
+      </p>
+      <p class="footer__copy">© <span id="ano"></span> Boutique FFN. Seja exclusivo.</p>
+    </div>
+  </footer>
+
+  <a class="whats-float" href="https://wa.me/5591985106107?text=Ol%C3%A1%2C%20Boutique%20FFN!%20Vim%20pelo%20site." target="_blank" rel="noopener" aria-label="Falar no WhatsApp">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3a13 13 0 0 0-11.2 19.6L3 29l6.6-1.7A13 13 0 1 0 16 3Zm0 23.6c-2 0-4-.5-5.7-1.6l-.4-.2-3.9 1 1-3.8-.3-.4A10.6 10.6 0 1 1 16 26.6Zm5.8-7.9c-.3-.2-1.9-.9-2.2-1-.3-.1-.5-.2-.7.2l-1 1.2c-.2.2-.4.2-.7.1a8.7 8.7 0 0 1-4.3-3.8c-.3-.5.3-.5.9-1.6.1-.2 0-.4 0-.5l-1-2.4c-.3-.6-.5-.5-.7-.5h-.6c-.2 0-.6.1-.9.4-.3.3-1.1 1.1-1.1 2.7s1.2 3.2 1.3 3.4c.2.2 2.3 3.5 5.6 4.9 2.1.9 2.9 1 3.9.8.6-.1 1.9-.8 2.2-1.5.3-.7.3-1.4.2-1.5l-.9-.4Z"/></svg>
+  </a>
+
+  <!-- Detalhe do produto -->
+  <dialog class="modal" id="modalProduto" aria-labelledby="modalNome">
+    <form method="dialog" class="modal__close-form"><button class="icon-btn modal__close" aria-label="Fechar">×</button></form>
+    <div class="modal__body">
+      <div class="modal__media" id="modalMedia"></div>
+      <div class="modal__info">
+        <p class="eyebrow" id="modalCategoria"></p>
+        <h2 id="modalNome"></h2>
+        <p class="preco" id="modalPreco"></p>
+        <p id="modalDescricao"></p>
+        <fieldset class="opcoes">
+          <legend>Cor</legend>
+          <div class="chips" id="modalCores"></div>
+        </fieldset>
+        <fieldset class="opcoes">
+          <legend>Tamanho</legend>
+          <div class="chips" id="modalTamanhos"></div>
+        </fieldset>
+        <div class="qtd-linha">
+          <div class="qtd" aria-label="Quantidade">
+            <button type="button" id="qtdMenos" aria-label="Diminuir">−</button>
+            <output id="qtdValor">1</output>
+            <button type="button" id="qtdMais" aria-label="Aumentar">+</button>
+          </div>
+          <button class="btn btn--gold btn--block" id="adicionarSacola">Adicionar à sacola</button>
+        </div>
+        <p class="aviso" id="modalAviso" role="alert"></p>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Sacola -->
+  <div class="drawer-backdrop" id="sacolaFundo" hidden></div>
+  <aside class="drawer" id="sacola" aria-label="Sacola" aria-hidden="true">
+    <div class="drawer__head">
+      <h2>Sua sacola</h2>
+      <button class="icon-btn" id="fecharCarrinho" aria-label="Fechar sacola">×</button>
+    </div>
+
+    <div class="drawer__content" id="sacolaEtapaItens">
+      <ul class="sacola-lista" id="sacolaLista"></ul>
+      <p class="vazio" id="sacolaVazia">Sua sacola está vazia. Bora montar o look?</p>
+    </div>
+
+    <form class="drawer__content checkout" id="checkout" hidden novalidate>
+      <button type="button" class="link-voltar" id="voltarItens">← Voltar para a sacola</button>
+      <label>Seu nome<input name="nome" required autocomplete="name"></label>
+      <fieldset>
+        <legend>Como quer receber?</legend>
+        <label class="radio"><input type="radio" name="entrega" value="retirada" checked> Retirar na loja (Rua 13 de Maio)</label>
+        <label class="radio"><input type="radio" name="entrega" value="entrega"> Entrega em Cametá</label>
+      </fieldset>
+      <label id="campoEndereco" hidden>Endereço para entrega<textarea name="endereco" rows="2" autocomplete="street-address"></textarea></label>
+      <fieldset>
+        <legend>Pagamento</legend>
+        <label class="radio"><input type="radio" name="pagamento" value="Pix" checked> Pix</label>
+        <label class="radio"><input type="radio" name="pagamento" value="Cartão"> Cartão</label>
+        <label class="radio"><input type="radio" name="pagamento" value="Dinheiro"> Dinheiro</label>
+      </fieldset>
+      <label>Observações (opcional)<textarea name="obs" rows="2"></textarea></label>
+      <p class="aviso" id="checkoutAviso" role="alert"></p>
+    </form>
+
+    <div class="drawer__foot" id="sacolaRodape" hidden>
+      <div class="total"><span>Total</span><strong id="sacolaTotal">R$ 0,00</strong></div>
+      <button class="btn btn--gold btn--block" id="irCheckout">Finalizar pedido</button>
+      <button class="btn btn--whats btn--block" id="enviarPedido" hidden form="checkout" type="submit">Enviar pedido no WhatsApp</button>
+    </div>
+  </aside>
+
+  <script src="js/produtos.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
