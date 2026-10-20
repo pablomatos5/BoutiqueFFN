@@ -285,6 +285,7 @@
     $("#sacolaEtapaItens").hidden = checkout;
     form.hidden = !checkout;
     $("#irCheckout").hidden = checkout;
+    $("#pagarMP").hidden = !checkout;
     $("#enviarPedido").hidden = !checkout;
     atualizarTotais();
   }
@@ -398,42 +399,51 @@
     atualizarTotais();
   }
 
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
+  // Valida o formulário; devolve os dados do pedido ou null
+  function dadosPedido() {
     const aviso = (t, campo) => { $("#checkoutAviso").textContent = t; campo?.focus(); };
     const nome = form.nome.value.trim();
     const entrega = form.entrega.value === "entrega";
-    if (!nome) return aviso("Informe seu nome.", form.nome);
+    if (!nome) return aviso("Informe seu nome.", form.nome), null;
     if (entrega) {
-      if (!cotacao) return aviso("Informe o CEP e calcule o frete.", form.cep);
-      if (!form.rua.value.trim()) return aviso("Informe a rua.", form.rua);
-      if (!form.numero.value.trim()) return aviso("Informe o número.", form.numero);
+      if (!cotacao) return aviso("Informe o CEP e calcule o frete.", form.cep), null;
+      if (!form.rua.value.trim()) return aviso("Informe a rua.", form.rua), null;
+      if (!form.numero.value.trim()) return aviso("Informe o número.", form.numero), null;
     }
     aviso("");
+    return {
+      pedido: `FFN-${Date.now().toString(36).toUpperCase()}`,
+      nome,
+      entrega: entrega ? "entrega" : "retirada",
+      cep: form.cep.value.replace(/\D/g, ""),
+      servico: frete.tipo === "correios" ? cotacao.opcoes.find((o) => o.servico === frete.servico)?.codigo : undefined,
+      endereco: { rua: form.rua.value.trim(), numero: form.numero.value.trim(), complemento: form.complemento.value.trim(), bairro: form.bairro.value.trim() },
+      itens: sacola.map(({ id, cor, tamanho, qtd }) => ({ id, cor, tamanho, qtd })),
+    };
+  }
 
+  function mensagemPedido(d, pagamento) {
     const linhas = sacola.map((i) => {
       const p = porId(i.id);
       return `• ${i.qtd}x ${p.nome} (${i.cor}, tam. ${i.tamanho}): ${brl(p.preco * i.qtd)}`;
     });
     const sub = totalSacola();
     let envio, freteTxt;
-    if (!entrega) {
+    if (d.entrega === "retirada") {
       envio = "Vou retirar na loja";
       freteTxt = "Frete: grátis (retirada)";
     } else {
       const l = cotacao.local;
-      const end = [`${form.rua.value.trim()}, ${form.numero.value.trim()}`, form.complemento.value.trim(), form.bairro.value.trim(), `${l.localidade}-${l.uf}`, `CEP ${form.cep.value}`]
-        .filter(Boolean).join(" · ");
-      envio = `Entregar em: ${end}`;
+      const e = d.endereco;
+      envio = `Entregar em: ${[`${e.rua}, ${e.numero}`, e.complemento, e.bairro, `${l.localidade}-${l.uf}`, `CEP ${form.cep.value}`].filter(Boolean).join(" · ")}`;
       freteTxt = {
         gratis: "Frete: grátis (Cametá)",
         correios: `Frete: ${frete.servico} ${brl(frete.valor)}${frete.prazo ? ` (até ${frete.prazo} dias úteis)` : ""}`,
         combinar: "Frete: a combinar",
       }[frete.tipo];
     }
-
-    const msg = [
-      `Olá, Boutique FFN! Quero fazer um pedido pelo site:`,
+    return [
+      `Olá, Boutique FFN! Pedido ${d.pedido} feito pelo site:`,
       ``,
       ...linhas,
       ``,
@@ -441,18 +451,78 @@
       freteTxt,
       `*Total: ${brl(sub + (frete.valor || 0))}*${frete.tipo === "combinar" ? " + frete" : ""}`,
       ``,
-      `Nome: ${nome}`,
+      `Nome: ${d.nome}`,
       envio,
-      `Pagamento: ${form.pagamento.value}`,
+      `Pagamento: ${pagamento}`,
       form.obs.value.trim() ? `Obs.: ${form.obs.value.trim()}` : "",
     ].filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n").trim();
+  }
 
-    window.open(`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`, "_blank", "noopener");
+  const linkWhats = (msg) => `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(msg)}`;
+
+  async function pagarMercadoPago(d) {
+    const botao = $("#pagarMP");
+    botao.disabled = true;
+    botao.textContent = "Abrindo o Mercado Pago…";
+    try {
+      const r = await fetch("api/pagamento", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(d) });
+      const resp = await r.json().catch(() => ({}));
+      if (!r.ok || !resp.url) throw new Error(resp.erro);
+      try { localStorage.setItem("ffn-pedido", JSON.stringify({ pedido: d.pedido, msg: mensagemPedido(d, "Mercado Pago") })); } catch { /* segue sem guardar */ }
+      location.href = resp.url;
+    } catch (err) {
+      $("#checkoutAviso").textContent = `${err.message || "Não foi possível abrir o pagamento agora"}. Você pode finalizar pelo WhatsApp logo abaixo.`;
+      botao.disabled = false;
+      botao.textContent = "Pagar com Mercado Pago";
+    }
+  }
+
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const d = dadosPedido();
+    if (!d) return;
+    if (e.submitter?.value === "whats") window.open(linkWhats(mensagemPedido(d, "a combinar")), "_blank", "noopener");
+    else pagarMercadoPago(d);
   });
+
+  /* ---------- Volta do Mercado Pago ---------- */
+  function retornoPagamento() {
+    const q = new URLSearchParams(location.search);
+    const status = q.get("pagamento");
+    if (!status) return;
+    history.replaceState(null, "", location.pathname + location.hash);
+
+    let salvo = {};
+    try { salvo = JSON.parse(localStorage.getItem("ffn-pedido")) || {}; } catch { /* sem dados */ }
+    const pedido = q.get("external_reference") || salvo.pedido || "";
+    const idPagamento = q.get("payment_id") || q.get("collection_id");
+    const textos = {
+      aprovado: ["Pagamento aprovado! 🐼", "Recebemos seu pagamento. Avise a loja no WhatsApp para combinar a entrega ou retirada."],
+      pendente: ["Pagamento em análise", "Assim que o Mercado Pago confirmar (Pix ou boleto), a loja separa seu pedido."],
+      falhou: ["Pagamento não concluído", "Nada foi cobrado. Sua sacola continua salva: tente de novo ou finalize pelo WhatsApp."],
+    }[status];
+    if (!textos) return;
+
+    $("#retornoTitulo").textContent = textos[0];
+    $("#retornoTexto").textContent = `${pedido ? `Pedido ${pedido}. ` : ""}${textos[1]}`;
+    const situacao = { aprovado: "aprovado", pendente: "pendente", falhou: "não concluído" }[status];
+    const msg = salvo.msg
+      ? salvo.msg.replace(/Pagamento: Mercado Pago$/m, `Pagamento: Mercado Pago ${situacao}${idPagamento ? ` (ID ${idPagamento})` : ""}`)
+      : `Olá, Boutique FFN! Fiz o pedido ${pedido} pelo site. Pagamento Mercado Pago ${situacao}${idPagamento ? ` (ID ${idPagamento})` : ""}.`;
+    $("#retornoWhats").href = linkWhats(msg);
+
+    if (status !== "falhou") {
+      sacola = [];
+      salvar();
+      try { localStorage.removeItem("ffn-pedido"); } catch { /* ok */ }
+    }
+    $("#modalRetorno").showModal();
+  }
 
   /* ---------- Início ---------- */
   $("#ano").textContent = new Date().getFullYear();
   montarChipsCategoria();
   renderVitrine();
+  retornoPagamento();
   renderSacola();
 })();

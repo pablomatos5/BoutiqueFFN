@@ -125,8 +125,8 @@
         </div>
         <ol class="passos">
           <li><span>1</span><h3>Escolha</h3><p>Selecione cor e tamanho e coloque na sacola.</p></li>
-          <li><span>2</span><h3>Finalize</h3><p>Preencha seus dados. O pedido segue pronto para o nosso WhatsApp.</p></li>
-          <li><span>3</span><h3>Pague</h3><p>Pix, cartão ou dinheiro, combinados direto com a gente.</p></li>
+          <li><span>2</span><h3>Finalize</h3><p>Informe seu nome e o CEP. Em Cametá a entrega é grátis.</p></li>
+          <li><span>3</span><h3>Pague</h3><p>Pix, cartão ou boleto pelo Mercado Pago, com total segurança.</p></li>
           <li><span>4</span><h3>Receba</h3><p>Retire na loja, receba grátis em Cametá ou pelos Correios em todo o Brasil.</p></li>
         </ol>
       </div>
@@ -248,12 +248,10 @@
           <label>Complemento / referência<input name="complemento" autocomplete="address-line2"></label>
         </div>
       </div>
-      <fieldset>
-        <legend>Pagamento</legend>
-        <label class="radio"><input type="radio" name="pagamento" value="Pix" checked> Pix</label>
-        <label class="radio"><input type="radio" name="pagamento" value="Cartão"> Cartão</label>
-        <label class="radio"><input type="radio" name="pagamento" value="Dinheiro"> Dinheiro</label>
-      </fieldset>
+      <div class="mp-info">
+        <strong>Pagamento seguro pelo Mercado Pago</strong>
+        <span>Pix, cartão de crédito ou débito e boleto. Você conclui o pagamento no ambiente do Mercado Pago.</span>
+      </div>
       <label>Observações (opcional)<textarea name="obs" rows="2"></textarea></label>
       <p class="aviso" id="checkoutAviso" role="alert"></p>
     </form>
@@ -265,9 +263,21 @@
       </div>
       <div class="total"><span>Total</span><strong id="sacolaTotal">R$ 0,00</strong></div>
       <button class="btn btn--gold btn--block" id="irCheckout">Finalizar pedido</button>
-      <button class="btn btn--whats btn--block" id="enviarPedido" hidden form="checkout" type="submit">Enviar pedido no WhatsApp</button>
+      <button class="btn btn--mp btn--block" id="pagarMP" hidden form="checkout" type="submit" value="mp">Pagar com Mercado Pago</button>
+      <button class="link-whats" id="enviarPedido" hidden form="checkout" type="submit" value="whats">Prefiro combinar o pagamento pelo WhatsApp</button>
     </div>
   </aside>
+
+  <!-- Retorno do Mercado Pago -->
+  <dialog class="modal modal--retorno" id="modalRetorno" aria-labelledby="retornoTitulo">
+    <div class="retorno">
+      <img src="assets/img/panda.svg" alt="" width="96" height="96">
+      <h2 id="retornoTitulo"></h2>
+      <p id="retornoTexto"></p>
+      <a class="btn btn--whats btn--block" id="retornoWhats" target="_blank" rel="noopener">Avisar a loja no WhatsApp</a>
+      <form method="dialog"><button class="link-whats">Voltar ao site</button></form>
+    </div>
+  </dialog>
 
   <script src="js/produtos.js"></script>
   <script src="js/app.js"></script>

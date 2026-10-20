@@ -3,6 +3,7 @@ import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
 import frete from "./api/frete.js";
+import pagamento from "./api/pagamento.js";
 
 const raiz = path.dirname(new URL(import.meta.url).pathname);
 const porta = Number(process.env.PORT) || 8000;
@@ -21,6 +22,7 @@ http
   .createServer((req, res) => {
     const url = new URL(req.url, "http://localhost");
     if (url.pathname === "/api/frete") return frete(req, res);
+    if (url.pathname === "/api/pagamento") return pagamento(req, res);
 
     const arquivo = path.normalize(path.join(raiz, url.pathname === "/" ? "index.html" : decodeURIComponent(url.pathname)));
     if (!arquivo.startsWith(raiz) || /[\\/](\.env|api|node_modules)/.test(arquivo.slice(raiz.length)) || !fs.existsSync(arquivo) || fs.statSync(arquivo).isDirectory()) {

@@ -1,6 +1,6 @@
 # Boutique FFN · Fica Feio Nunca
 
-Site de vendas da Boutique FFN (Cametá-PA): vitrine com filtros e busca, sacola, frete (grátis em Cametá, Correios para o resto do Brasil) e pedido finalizado pelo WhatsApp da loja.
+Site de vendas da Boutique FFN (Cametá-PA): vitrine com filtros e busca, sacola, frete (grátis em Cametá, Correios para o resto do Brasil), pagamento pelo Mercado Pago e aviso do pedido no WhatsApp da loja.
 
 O estudo de identidade visual que guiou o layout está em [`docs/identidade-visual.md`](docs/identidade-visual.md).
 
@@ -12,6 +12,7 @@ css/styles.css      estilos (cores e fontes no topo, em :root)
 js/produtos.js      catálogo: edite aqui produtos, preços, cores e tamanhos
 js/app.js           vitrine, sacola (salva no navegador), CEP/frete e envio do pedido ao WhatsApp
 api/frete.js        função de servidor que consulta PAC e SEDEX na API dos Correios
+api/pagamento.js    função de servidor que cria o pagamento no Mercado Pago (Checkout Pro)
 server.js           servidor local (site + /api/frete)
 assets/img/         fotos e o panda
 ```
@@ -48,6 +49,16 @@ A API exige **contrato com os Correios** (pessoa jurídica). No portal [Meu Corr
 
 Confira no contrato os códigos de PAC e SEDEX, que podem variar.
 
+## Pagamento (Mercado Pago)
+
+O botão **Pagar com Mercado Pago** chama `api/pagamento.js`, que monta o pedido a partir do catálogo (`js/produtos.js`), recalcula o frete e cria uma preferência do **Checkout Pro**. O cliente paga com Pix, cartão ou boleto no ambiente do Mercado Pago e volta ao site, que mostra o resultado (aprovado, pendente ou não concluído) e um botão para avisar a loja no WhatsApp com o número do pedido e o ID do pagamento.
+
+- Preços e frete são sempre recalculados no servidor, então o valor não pode ser alterado pelo navegador.
+- Os pagamentos aparecem no painel do Mercado Pago da loja, com o número do pedido (`FFN-...`) como referência externa e os dados de entrega.
+- Se o pagamento online não estiver disponível (sem token, ou frete dos Correios fora do ar), o site mostra o aviso e o cliente ainda pode finalizar pelo WhatsApp.
+
+**Credencial:** em [mercadopago.com.br/developers](https://www.mercadopago.com.br/developers) → *Suas integrações* → criar aplicação (Checkout Pro) → *Credenciais de produção*, copie o **Access Token** para `MP_ACCESS_TOKEN`. Para testar sem cobrar, use o Access Token de **teste** e os cartões de teste do Mercado Pago.
+
 ## Cadastrar ou alterar produtos
 
 Edite `js/produtos.js`. Cada produto é um bloco com `nome`, `categoria`, `preco`, `cores`, `tamanhos` etc. (os campos estão explicados no topo do arquivo). Coloque a foto em `assets/img/` e informe o caminho em `imagem`. Sem foto, o site mostra um card escuro com o panda.
@@ -60,10 +71,10 @@ Em `js/app.js` (constante `WHATSAPP`) e nos links `wa.me` do `index.html`.
 
 ## Publicar
 
-Use a **Vercel** (grátis), porque ela roda a função `api/frete.js` sem configuração:
+Use a **Vercel** (grátis), porque ela roda as funções de `api/` (frete e pagamento) sem configuração:
 
 1. Em vercel.com, *Add New → Project* e importe este repositório.
-2. Em *Settings → Environment Variables*, cadastre as variáveis acima.
-3. Faça o deploy. O site e o `/api/frete` sobem juntos.
+2. Em *Settings → Environment Variables*, cadastre as variáveis acima (Correios e `MP_ACCESS_TOKEN`).
+3. Faça o deploy. O site e as funções `/api/frete` e `/api/pagamento` sobem juntos.
 
-GitHub Pages e outras hospedagens estáticas também mostram o site, mas sem o cálculo dos Correios: lá o frete fica *a combinar* (Cametá continua grátis).
+GitHub Pages e outras hospedagens estáticas também mostram o site, mas sem frete dos Correios nem pagamento online: lá o pedido é finalizado pelo WhatsApp (Cametá continua com frete grátis).

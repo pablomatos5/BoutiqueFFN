@@ -53,35 +53,44 @@ async function cotar(env, token, codigo, cepDestino, peso) {
   return { preco: numeroBR(preco.pcFinal), prazo: prazo.prazoEntrega ?? null };
 }
 
-function responder(res, status, corpo) {
+export function responder(res, status, corpo) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json; charset=utf-8");
   res.setHeader("Cache-Control", status === 200 ? "s-maxage=3600" : "no-store");
   res.end(JSON.stringify(corpo));
 }
 
+// Cota PAC/SEDEX para o CEP. Lança erro com .status em caso de falha.
+export async function cotarFrete(cep, peso, env = process.env) {
+  if (!env.CORREIOS_USUARIO || !env.CORREIOS_CODIGO_ACESSO || !env.CORREIOS_CARTAO_POSTAGEM) {
+    throw Object.assign(new Error("Cálculo de frete dos Correios ainda não configurado"), { status: 503 });
+  }
+  const servicos = (env.CORREIOS_SERVICOS || "03298:PAC,03220:SEDEX").split(",").map((s) => s.split(":"));
+  let token;
+  try {
+    token = await obterToken(env);
+  } catch (e) {
+    console.error("[frete]", e);
+    throw Object.assign(new Error("Não foi possível consultar os Correios agora"), { status: 502 });
+  }
+  const resultados = await Promise.allSettled(servicos.map(([codigo]) => cotar(env, token, codigo, cep, peso)));
+  const opcoes = resultados
+    .map((r, i) => (r.status === "fulfilled" && r.value.preco > 0 ? { servico: servicos[i][1], codigo: servicos[i][0], ...r.value } : null))
+    .filter(Boolean)
+    .sort((a, b) => a.preco - b.preco);
+  if (!opcoes.length) throw Object.assign(new Error("Os Correios não retornaram opções para este CEP"), { status: 502 });
+  return opcoes;
+}
+
+export const normalizarPeso = (g) => Math.min(30000, Math.max(300, Math.ceil(Number(g) || 300)));
+
 export default async function handler(req, res, env = process.env) {
   const params = new URL(req.url, "http://localhost").searchParams;
   const cep = (params.get("cep") || "").replace(/\D/g, "");
-  const peso = Math.min(30000, Math.max(300, Math.ceil(Number(params.get("peso")) || 300)));
-
   if (cep.length !== 8) return responder(res, 400, { erro: "CEP inválido" });
-  if (!env.CORREIOS_USUARIO || !env.CORREIOS_CODIGO_ACESSO || !env.CORREIOS_CARTAO_POSTAGEM) {
-    return responder(res, 503, { erro: "Cálculo de frete dos Correios ainda não configurado" });
-  }
-
-  const servicos = (env.CORREIOS_SERVICOS || "03298:PAC,03220:SEDEX").split(",").map((s) => s.split(":"));
   try {
-    const token = await obterToken(env);
-    const resultados = await Promise.allSettled(servicos.map(([codigo]) => cotar(env, token, codigo, cep, peso)));
-    const opcoes = resultados
-      .map((r, i) => (r.status === "fulfilled" && r.value.preco > 0 ? { servico: servicos[i][1], codigo: servicos[i][0], ...r.value } : null))
-      .filter(Boolean)
-      .sort((a, b) => a.preco - b.preco);
-    if (!opcoes.length) return responder(res, 502, { erro: "Os Correios não retornaram opções para este CEP" });
-    return responder(res, 200, { opcoes });
+    return responder(res, 200, { opcoes: await cotarFrete(cep, normalizarPeso(params.get("peso")), env) });
   } catch (e) {
-    console.error("[frete]", e);
-    return responder(res, 502, { erro: "Não foi possível consultar os Correios agora" });
+    return responder(res, e.status || 500, { erro: e.message });
   }
 }

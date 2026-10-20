@@ -54,6 +54,15 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
 .btn--gold { background: var(--gradiente-ouro); color: var(--noite); box-shadow: 0 6px 18px rgba(201, 161, 74, .35); }
 .btn--ghost { border-color: var(--ouro); color: var(--ouro-claro); background: transparent; }
 .btn--whats { background: var(--whats); color: #fff; }
+.btn--mp { background: #009ee3; color: #fff; }
+.btn--mp:hover { background: #008ac7; }
+.link-whats { border: 0; background: none; padding: .25rem; color: var(--cinza); font-size: .8rem; font-weight: 600; text-decoration: underline; }
+.mp-info { display: grid; gap: .2rem; padding: .85rem 1rem; border-radius: 10px; background: #e8f6fd; border: 1px solid #b6e3f8; font-size: .82rem; color: #0b4a6b; }
+.modal.modal--retorno { width: min(440px, 100% - 24px); }
+.retorno { padding: 2rem 1.75rem 1.5rem; display: grid; justify-items: center; text-align: center; gap: .75rem; }
+.retorno h2 { font-family: var(--fonte-titulo); margin: 0; }
+.retorno p { margin: 0 0 .5rem; color: var(--cinza); }
+.retorno form { margin: 0; }
 .btn--block { width: 100%; }
 .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
 

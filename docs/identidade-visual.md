@@ -47,7 +47,7 @@ Fonte: perfil [@boutiqueficafeionunca_](https://www.instagram.com/boutiqueficafe
 | Mascote | Panda como ícone, favicon e card das peças ainda sem foto |
 | Compra | Sacola no site → pedido pronto no WhatsApp, que é como a loja já vende hoje |
 | Entrega | Retirada na loja ou entrega grátis em Cametá; Correios (PAC/SEDEX) para o resto do Brasil |
-| Pagamento | Pix, cartão ou dinheiro, combinados no WhatsApp |
+| Pagamento | Mercado Pago (Pix, cartão e boleto) no próprio site; WhatsApp como alternativa |
 
 ## Pendências com o cliente
 
@@ -55,4 +55,5 @@ Fonte: perfil [@boutiqueficafeionunca_](https://www.instagram.com/boutiqueficafe
 2. **Logo em vetor** (SVG/AI/PDF) do FFN. O panda foi vetorizado da foto de perfil da loja (`assets/img/panda.svg` e `panda-solo.svg`); com o arquivo original ele fica ainda mais fiel.
 3. **Fotos de produto** para as peças sem imagem (fundo neutro, mesmo ângulo).
 4. **Credenciais do contrato com os Correios** (usuário, código de acesso da API e cartão de postagem) para ativar o cálculo do frete.
-5. Domínio desejado (ex.: `boutiqueffn.com.br`).
+5. **Access Token do Mercado Pago** da conta da loja para ativar o pagamento online.
+6. Domínio desejado (ex.: `boutiqueffn.com.br`).
