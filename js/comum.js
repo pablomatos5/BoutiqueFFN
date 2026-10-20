@@ -17,10 +17,15 @@ window.FFN = (() => {
   };
   const corDe = (nome) => CORES[semAcento(nome)] || "conic-gradient(#e8a0b4, #4a76a8, #c9a14a, #2f5d46, #e8a0b4)";
 
-  const midia = (p) =>
-    p.imagem
-      ? `<img src="${esc(p.imagem)}" alt="${esc(p.nome)}" loading="lazy">`
-      : `<div class="sem-foto"><img src="assets/img/panda.webp" alt=""><span>${esc(p.nome)}</span></div>`;
+  // fotos da peça no formato { src, cor? } (aceita texto simples ou o campo antigo `imagem`)
+  const fotosDe = (p) => (p.fotos?.length ? p.fotos : p.imagem ? [p.imagem] : []).map((f) => (typeof f === "string" ? { src: f } : f)).filter((f) => f.src);
+  const fotoPrincipal = (p) => fotosDe(p)[0]?.src || "";
+  const semFoto = (p) => `<div class="sem-foto"><img src="assets/img/panda.webp" alt=""><span>${esc(p.nome)}</span></div>`;
+
+  const midia = (p) => {
+    const capa = fotoPrincipal(p);
+    return capa ? `<img src="${esc(capa)}" alt="${esc(p.nome)}" loading="lazy" decoding="async">` : semFoto(p);
+  };
 
   function carregarSacola() {
     try {
@@ -127,5 +132,5 @@ window.FFN = (() => {
     el.textContent = partes.join(" · ");
   });
 
-  return { corDe, WHATSAPP, brl, esc, semAcento, porId, midia, carregarSacola, salvarSacola, totalSacola, qtdSacola, pesoSacola, linkWhats, htmlItens, editarItem, ETAPAS, NOMES, nomeStatus, linkAcompanhar, dataHora, demo };
+  return { fotosDe, fotoPrincipal, semFoto, corDe, WHATSAPP, brl, esc, semAcento, porId, midia, carregarSacola, salvarSacola, totalSacola, qtdSacola, pesoSacola, linkWhats, htmlItens, editarItem, ETAPAS, NOMES, nomeStatus, linkAcompanhar, dataHora, demo };
 })();

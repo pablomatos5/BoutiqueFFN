@@ -36,6 +36,7 @@
       <article class="card">
         <button class="card__media" data-abrir="${p.id}" aria-label="Ver ${esc(p.nome)}">
           ${midia(p)}
+          ${FFN.fotosDe(p).length > 1 ? `<img class="card__foto2" src="${esc(FFN.fotosDe(p)[1].src)}" alt="" loading="lazy" decoding="async"><span class="card__fotos" aria-label="${FFN.fotosDe(p).length} fotos">📷 ${FFN.fotosDe(p).length}</span>` : ""}
           ${p.selo ? `<span class="selo">${esc(p.selo)}</span>` : ""}
         </button>
         <div class="card__body">
@@ -127,6 +128,95 @@
       .join("");
   }
 
+  /* ---------- Galeria de fotos da peça ---------- */
+  const galeria = { fotos: [], atual: 0 };
+
+  function montarGaleria(p) {
+    const fotos = FFN.fotosDe(p);
+    galeria.fotos = fotos;
+    galeria.atual = 0;
+    if (!fotos.length) {
+      $("#modalMedia").innerHTML = `${FFN.semFoto(p)}<p class="galeria__embreve">Fotos em breve 📸</p>`;
+      return;
+    }
+    const varias = fotos.length > 1;
+    $("#modalMedia").innerHTML = `
+      <div class="galeria${varias ? " galeria--varias" : ""}">
+        <div class="galeria__trilho" id="galeriaTrilho" tabindex="0" aria-label="Fotos de ${esc(p.nome)}${varias ? `, ${fotos.length} fotos. Deslize para ver` : ""}">
+          ${fotos.map((f, i) => `<figure class="galeria__foto"><img src="${esc(f.src)}" alt="${esc(p.nome)}${f.cor ? `, cor ${esc(f.cor)}` : ""}${varias ? ` (foto ${i + 1} de ${fotos.length})` : ""}" ${i ? 'loading="lazy"' : ""} decoding="async" data-ampliar="${i}"></figure>`).join("")}
+        </div>
+        ${varias ? `
+        <button type="button" class="galeria__seta galeria__seta--ant" data-ir="-1" aria-label="Foto anterior">‹</button>
+        <button type="button" class="galeria__seta galeria__seta--prox" data-ir="1" aria-label="Próxima foto">›</button>
+        <div class="galeria__pontos">${fotos.map((_, i) => `<button type="button" data-foto="${i}" aria-label="Foto ${i + 1}"${i ? "" : ' aria-current="true"'}></button>`).join("")}</div>
+        <span class="galeria__contador" id="galeriaContador">1/${fotos.length}</span>` : ""}
+        <button type="button" class="galeria__ampliar" data-ampliar="0" aria-label="Ver em tela cheia">⤢</button>
+      </div>
+      ${varias ? `<div class="galeria__miniaturas">${fotos.map((f, i) => `<button type="button" data-foto="${i}" aria-label="Foto ${i + 1}"${i ? "" : ' aria-current="true"'}><img src="${esc(f.src)}" alt="" loading="lazy" decoding="async"></button>`).join("")}</div>` : ""}`;
+
+    const trilho = $("#galeriaTrilho");
+    let quadro;
+    trilho.addEventListener("scroll", () => {
+      cancelAnimationFrame(quadro);
+      quadro = requestAnimationFrame(() => marcarFoto(Math.round(trilho.scrollLeft / trilho.clientWidth)));
+    }, { passive: true });
+  }
+
+  function marcarFoto(i) {
+    if (i === galeria.atual && i) return;
+    galeria.atual = Math.max(0, Math.min(galeria.fotos.length - 1, i));
+    document.querySelectorAll("#modalMedia [data-foto]").forEach((b) => b.toggleAttribute("aria-current", Number(b.dataset.foto) === galeria.atual));
+    const contador = $("#galeriaContador");
+    if (contador) contador.textContent = `${galeria.atual + 1}/${galeria.fotos.length}`;
+    document.querySelectorAll("#modalMedia .galeria__ampliar").forEach((b) => (b.dataset.ampliar = galeria.atual));
+  }
+
+  function irParaFoto(i, suave = true) {
+    const trilho = $("#galeriaTrilho");
+    if (!trilho) return;
+    const alvo = (i + galeria.fotos.length) % galeria.fotos.length;
+    trilho.scrollTo({ left: alvo * trilho.clientWidth, behavior: suave ? "smooth" : "auto" });
+    marcarFoto(alvo);
+  }
+
+  // tela cheia: fotos inteiras, fundo escuro; no celular dá para dar zoom com os dedos
+  function ampliar(i) {
+    const tela = document.createElement("div");
+    tela.className = "galeria-cheia";
+    tela.setAttribute("role", "dialog");
+    tela.setAttribute("aria-label", "Fotos em tela cheia");
+    tela.innerHTML = `<button type="button" class="galeria-cheia__fechar" aria-label="Fechar">×</button>
+      <div class="galeria-cheia__trilho">${galeria.fotos.map((f) => `<img src="${esc(f.src)}" alt="" decoding="async">`).join("")}</div>`;
+    modal.appendChild(tela);
+    const trilho = tela.querySelector(".galeria-cheia__trilho");
+    trilho.scrollLeft = i * trilho.clientWidth;
+    const fechar = () => {
+      irParaFoto(Math.round(trilho.scrollLeft / trilho.clientWidth), false);
+      tela.remove();
+    };
+    tela.querySelector(".galeria-cheia__fechar").addEventListener("click", fechar);
+    tela.querySelector(".galeria-cheia__fechar").focus();
+    galeria.fecharCheia = fechar;
+  }
+
+  $("#modalMedia").addEventListener("click", (e) => {
+    const ir = e.target.closest("[data-ir]");
+    if (ir) return irParaFoto(galeria.atual + Number(ir.dataset.ir));
+    const foto = e.target.closest("[data-foto]");
+    if (foto) return irParaFoto(Number(foto.dataset.foto));
+    const zoom = e.target.closest("[data-ampliar]");
+    if (zoom) ampliar(Number(zoom.dataset.ampliar));
+  });
+  $("#modalMedia").addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") irParaFoto(galeria.atual + 1);
+    if (e.key === "ArrowLeft") irParaFoto(galeria.atual - 1);
+  });
+  // Esc fecha primeiro a tela cheia, depois a peça
+  modal.addEventListener("cancel", (e) => {
+    const cheia = modal.querySelector(".galeria-cheia");
+    if (cheia) { e.preventDefault(); galeria.fecharCheia?.(); }
+  });
+
   function guiaMedidas(p) {
     const m = MEDIDAS[p.categoria];
     const linhas = m && p.tamanhos.filter((t) => m.linhas[t]);
@@ -152,7 +242,7 @@
       tamanho: p.tamanhos.length === 1 ? p.tamanhos[0] : null,
       qtd: 1,
     });
-    $("#modalMedia").innerHTML = midia(p);
+    montarGaleria(p);
     $("#modalCategoria").textContent = CATEGORIAS[p.categoria];
     $("#modalNome").textContent = p.nome;
     $("#modalPreco").innerHTML = `${p.precoDe ? `<s>${brl(p.precoDe)}</s>` : ""}${brl(p.preco)}`;
@@ -177,7 +267,12 @@
 
   $("#modalCores").addEventListener("click", (e) => {
     const c = e.target.closest("[data-cor]");
-    if (c) { escolha.cor = c.dataset.cor; atualizarEscolha(); }
+    if (c) {
+      escolha.cor = c.dataset.cor;
+      atualizarEscolha();
+      const i = galeria.fotos.findIndex((f) => f.cor && FFN.semAcento(f.cor) === FFN.semAcento(escolha.cor));
+      if (i >= 0) irParaFoto(i);
+    }
   });
   $("#modalTamanhos").addEventListener("click", (e) => {
     const c = e.target.closest("[data-tamanho]");
@@ -234,7 +329,7 @@
     const origem = $("#modalMedia").getBoundingClientRect();
     modal.close();
     // efeitos.js anima a peça voando até a sacola e mostra o aviso
-    document.dispatchEvent(new CustomEvent("ffn:adicionado", { detail: { origem, imagem: escolha.produto.imagem, nome: escolha.produto.nome } }));
+    document.dispatchEvent(new CustomEvent("ffn:adicionado", { detail: { origem, imagem: galeria.fotos[galeria.atual]?.src || FFN.fotoPrincipal(escolha.produto), nome: escolha.produto.nome } }));
   });
 
   /* ---------- Cupom no link (?cupom=...) vale até o checkout ---------- */

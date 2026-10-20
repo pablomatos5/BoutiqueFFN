@@ -144,7 +144,19 @@ Cada peça tem um link próprio (`?produto=short-sarja-madrid`): abre a peça di
 
 ## Cadastrar ou alterar produtos
 
-Edite `js/produtos.js`. Cada produto é um bloco com `nome`, `categoria`, `preco`, `cores`, `tamanhos` etc. (os campos estão explicados no topo do arquivo). Coloque a foto em `assets/img/` e informe o caminho em `imagem`. Sem foto, o site mostra um card escuro com o panda.
+Edite `js/produtos.js`. Cada produto é um bloco com `nome`, `categoria`, `preco`, `cores`, `tamanhos` etc. (os campos estão explicados no topo do arquivo).
+
+**Fotos:** cada peça tem a lista `fotos`, com quantas fotos quiser; a primeira é a capa da vitrine. Coloque os arquivos em `assets/img/` (de preferência `.webp`, em pé, proporção 4:5, uns 900×1100 px) e liste os caminhos:
+
+```js
+fotos: [
+  "assets/img/short-linho-1.webp",
+  { src: "assets/img/short-linho-areia.webp", cor: "Areia" }, // ao escolher a cor Areia, a galeria vai para esta foto
+  "assets/img/short-linho-detalhe.webp",
+],
+```
+
+Na peça aberta, as fotos viram uma galeria (deslizar no celular, setas e miniaturas no computador, toque para tela cheia com zoom). Na vitrine, o card mostra quantas fotos a peça tem e, no computador, troca para a segunda foto ao passar o mouse. Sem fotos (`fotos: []`), aparece o card com o panda e "Fotos em breve".
 
 > Os preços atuais são provisórios e precisam ser confirmados com a loja.
 

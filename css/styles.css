@@ -1023,3 +1023,51 @@ html { -webkit-tap-highlight-color: transparent; }
 .cupom-card__codigo { font-family: ui-monospace, monospace; letter-spacing: .06em; }
 .cupom-card .pedido-card__acoes .btn { flex: 1 1 90px; }
 .btn--perigo { border-color: #b3261e !important; color: #b3261e !important; }
+
+/* ---------- Galeria de fotos da peça ---------- */
+.modal__media { position: relative; display: grid; align-content: start; }
+.galeria { position: relative; aspect-ratio: 4 / 5; background: var(--noite); overflow: hidden; }
+.galeria__trilho { display: flex; height: 100%; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; overscroll-behavior-x: contain; outline: none; }
+.galeria__trilho::-webkit-scrollbar { display: none; }
+.galeria__foto { flex: 0 0 100%; margin: 0; scroll-snap-align: center; scroll-snap-stop: always; }
+.modal__media .galeria__foto img { width: 100%; height: 100%; object-fit: cover; cursor: zoom-in; }
+.galeria__seta {
+  position: absolute; top: 50%; translate: 0 -50%; width: 44px; height: 44px; border: 0; border-radius: 50%;
+  background: rgba(255, 255, 255, .88); color: var(--noite); font-size: 1.6rem; line-height: 1; display: none; box-shadow: 0 4px 14px rgba(0, 0, 0, .2);
+}
+.galeria__seta--ant { left: 10px; }
+.galeria__seta--prox { right: 10px; }
+@media (hover: hover) and (pointer: fine) { .galeria--varias .galeria__seta { display: grid; place-items: center; } }
+.galeria__pontos { position: absolute; left: 0; right: 0; bottom: 12px; display: flex; justify-content: center; gap: 6px; pointer-events: none; }
+.galeria__pontos button { pointer-events: auto; width: 8px; height: 8px; padding: 0; border: 0; border-radius: 999px; background: rgba(255, 255, 255, .6); box-shadow: 0 0 0 1px rgba(0, 0, 0, .15); transition: width .25s, background .25s; }
+.galeria__pontos button[aria-current] { width: 22px; background: var(--ouro-claro); }
+.galeria__contador { position: absolute; top: 12px; left: 12px; padding: .2rem .55rem; border-radius: 999px; background: rgba(14, 22, 19, .7); color: #fff; font-size: .72rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+.galeria__ampliar { position: absolute; right: 12px; bottom: 10px; width: 38px; height: 38px; border: 0; border-radius: 50%; background: rgba(14, 22, 19, .65); color: #fff; font-size: 1.05rem; }
+.galeria__miniaturas { display: none; }
+@media (min-width: 901px) {
+  .galeria__miniaturas { display: flex; gap: .5rem; padding: .6rem; background: var(--noite); overflow-x: auto; }
+  .galeria__miniaturas button { flex: 0 0 64px; height: 80px; padding: 0; border: 2px solid transparent; border-radius: 8px; overflow: hidden; background: none; opacity: .6; transition: opacity .2s, border-color .2s; }
+  .galeria__miniaturas button[aria-current] { border-color: var(--ouro); opacity: 1; }
+  .modal__media .galeria__miniaturas img { width: 100%; height: 100%; object-fit: cover; }
+}
+.galeria__embreve { position: absolute; left: 0; right: 0; bottom: 14px; margin: 0; text-align: center; font-size: .78rem; font-weight: 700; color: var(--ouro-claro); }
+.modal__media .sem-foto { aspect-ratio: 4 / 5; height: auto; }
+
+/* tela cheia */
+.galeria-cheia { position: fixed; inset: 0; z-index: 10; background: #050806; display: grid; }
+.galeria-cheia__trilho { display: flex; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; }
+.galeria-cheia__trilho::-webkit-scrollbar { display: none; }
+.modal .galeria-cheia__trilho img { flex: 0 0 100%; width: 100%; height: 100dvh; object-fit: contain; scroll-snap-align: center; touch-action: pinch-zoom pan-x; }
+.galeria-cheia__fechar { position: absolute; top: calc(12px + env(safe-area-inset-top)); right: 12px; z-index: 1; width: 48px; height: 48px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .9); font-size: 1.8rem; line-height: 1; }
+
+/* vitrine: quantas fotos e a segunda foto ao passar o mouse */
+.card__fotos { position: absolute; right: 10px; bottom: 10px; padding: .2rem .5rem; border-radius: 999px; background: rgba(14, 22, 19, .72); color: #fff; font-size: .7rem; font-weight: 700; }
+.card__foto2 { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0; transition: opacity .35s; }
+@media (hover: hover) and (pointer: fine) { .card:hover .card__foto2 { opacity: 1; } }
+@media (hover: none) { .card__foto2 { display: none; } }
+
+@media (max-width: 900px) {
+  .modal__media { aspect-ratio: auto; }
+  .galeria { aspect-ratio: 1 / 1; }
+  .modal__media .sem-foto { aspect-ratio: 4 / 3; }
+}
