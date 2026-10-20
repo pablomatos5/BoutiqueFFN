@@ -32,8 +32,10 @@ http
 
     const arquivo = path.normalize(path.join(raiz, url.pathname === "/" ? "index.html" : decodeURIComponent(url.pathname)));
     if (!arquivo.startsWith(raiz) || /[\\/](\.env|api|node_modules|data|seguranca\.json)/.test(arquivo.slice(raiz.length)) || !fs.existsSync(arquivo) || fs.statSync(arquivo).isDirectory()) {
+      // mesma página 404 da Vercel e do GitHub Pages
       res.statusCode = 404;
-      return res.end("Não encontrado");
+      res.setHeader("Content-Type", "text/html; charset=utf-8");
+      return fs.createReadStream(path.join(raiz, "404.html")).pipe(res);
     }
     res.setHeader("Content-Type", (tipos[path.extname(arquivo)] || "application/octet-stream") + "; charset=utf-8");
     fs.createReadStream(arquivo).pipe(res);

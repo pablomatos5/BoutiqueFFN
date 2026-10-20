@@ -10,7 +10,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' https://sdk.mercadopago.com https://www.mercadopago.com https://*.mercadopago.com https://*.mercadolibre.com https://*.mlstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://viacep.com.br https://*.mercadopago.com https://*.mercadolibre.com https://*.mlstatic.com; frame-src https://www.google.com https://maps.google.com https://*.mercadopago.com https://*.mercadolibre.com https://*.mlstatic.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
+          "value": "default-src 'self'; script-src 'self' 'sha256-u4Ku7Mwl3fHK+B6Lv1MJEmGAfoeoujua3HdFBNr5NuI=' https://sdk.mercadopago.com https://www.mercadopago.com https://*.mercadopago.com https://*.mercadolibre.com https://*.mlstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://viacep.com.br https://*.mercadopago.com https://*.mercadolibre.com https://*.mlstatic.com; frame-src https://www.google.com https://maps.google.com https://*.mercadopago.com https://*.mercadolibre.com https://*.mlstatic.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests"
         },
         {
           "key": "X-Content-Type-Options",
