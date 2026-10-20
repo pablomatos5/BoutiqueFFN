@@ -7,10 +7,14 @@ O estudo de identidade visual que guiou o layout está em [`docs/identidade-visu
 ## Estrutura
 
 ```
-index.html          página única: hero, categorias, loja, Lupo, como comprar, endereço
+index.html          loja: abertura, categorias, vitrine, Lupo, como comprar, endereço
+finalizar.html      página de finalizar pedido: sacola, dados, entrega/frete e pagamento
 css/styles.css      estilos (cores e fontes no topo, em :root)
 js/produtos.js      catálogo: edite aqui produtos, preços, cores e tamanhos
-js/app.js           vitrine, sacola (salva no navegador), CEP/frete e envio do pedido ao WhatsApp
+js/comum.js         funções usadas pelas duas páginas (sacola salva no navegador, preços, itens)
+js/app.js           loja: vitrine, filtros, detalhe do produto e gaveta da sacola
+js/finalizar.js     finalizar: CEP/frete, validação, Mercado Pago, WhatsApp e volta do pagamento
+js/efeitos.js       animações e interações (desligadas se o aparelho pede "reduzir movimento")
 api/frete.js        função de servidor que consulta PAC e SEDEX na API dos Correios
 api/pagamento.js    função de servidor que cria o pagamento no Mercado Pago (Checkout Pro)
 server.js           servidor local (site + /api/frete)
@@ -51,7 +55,7 @@ Confira no contrato os códigos de PAC e SEDEX, que podem variar.
 
 ## Pagamento (Mercado Pago)
 
-O botão **Pagar com Mercado Pago** chama `api/pagamento.js`, que monta o pedido a partir do catálogo (`js/produtos.js`), recalcula o frete e cria uma preferência do **Checkout Pro**. O cliente paga com Pix, cartão ou boleto no ambiente do Mercado Pago e volta ao site, que mostra o resultado (aprovado, pendente ou não concluído) e um botão para avisar a loja no WhatsApp com o número do pedido e o ID do pagamento.
+O botão **Pagar com Mercado Pago** chama `api/pagamento.js`, que monta o pedido a partir do catálogo (`js/produtos.js`), recalcula o frete e cria uma preferência do **Checkout Pro**. O cliente paga com Pix, cartão ou boleto no ambiente do Mercado Pago e volta para `finalizar.html`, que mostra o resultado (aprovado, pendente ou não concluído) e um botão para avisar a loja no WhatsApp com o número do pedido e o ID do pagamento.
 
 - Preços e frete são sempre recalculados no servidor, então o valor não pode ser alterado pelo navegador.
 - Os pagamentos aparecem no painel do Mercado Pago da loja, com o número do pedido (`FFN-...`) como referência externa e os dados de entrega.

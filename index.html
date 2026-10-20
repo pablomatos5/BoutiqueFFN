@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Boutique FFN · Fica Feio Nunca | Moda masculina e feminina em Cametá-PA</title>
   <meta name="description" content="Boutique FFN, a Fica Feio Nunca: moda masculina e feminina, shorts de sarja, linho e peças Lupo. Loja física em Cametá-PA e compra online pelo WhatsApp.">
   <meta name="theme-color" content="#0e1613">
@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20261020-4">
+  <link rel="stylesheet" href="css/styles.css?v=20261020-7">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -27,7 +27,10 @@
 </svg>
 
   <div class="topbar">
-    <p><svg width="24" height="24" class="topbar__folha" aria-hidden="true"><use href="#i-folha"/></svg> Entrega grátis em Cametá · Enviamos para todo o Brasil pelos Correios <svg width="24" height="24" class="topbar__folha topbar__folha--inv" aria-hidden="true"><use href="#i-folha"/></svg></p>
+    <div class="topbar__trilho">
+      <p class="topbar__grupo"><span>Entrega grátis em Cametá</span><svg width="24" height="24" class="topbar__folha" aria-hidden="true"><use href="#i-folha"/></svg><span>Enviamos para todo o Brasil pelos Correios</span><svg width="24" height="24" class="topbar__folha" aria-hidden="true"><use href="#i-folha"/></svg><span>Pix, cartão ou boleto pelo Mercado Pago</span><svg width="24" height="24" class="topbar__folha" aria-hidden="true"><use href="#i-folha"/></svg><span>Peças Lupo na loja</span><svg width="24" height="24" class="topbar__folha" aria-hidden="true"><use href="#i-folha"/></svg><span>Fica feio nunca 🐼</span><svg width="24" height="24" class="topbar__folha" aria-hidden="true"><use href="#i-folha"/></svg></p>
+      <p class="topbar__grupo" aria-hidden="true"><span>Entrega grátis em Cametá</span><svg width="24" height="24" class="topbar__folha" aria-hidden="true"><use href="#i-folha"/></svg><span>Enviamos para todo o Brasil pelos Correios</span><svg width="24" height="24" class="topbar__folha" aria-hidden="true"><use href="#i-folha"/></svg><span>Pix, cartão ou boleto pelo Mercado Pago</span><svg width="24" height="24" class="topbar__folha" aria-hidden="true"><use href="#i-folha"/></svg><span>Peças Lupo na loja</span><svg width="24" height="24" class="topbar__folha" aria-hidden="true"><use href="#i-folha"/></svg><span>Fica feio nunca 🐼</span><svg width="24" height="24" class="topbar__folha" aria-hidden="true"><use href="#i-folha"/></svg></p>
+    </div>
   </div>
 
   <header class="header">
@@ -67,11 +70,20 @@
       <img class="hero__marca-dagua" src="assets/img/panda-solo.svg" alt="" aria-hidden="true" width="120" height="114">
       <svg height="24" class="bambu hero__bambu hero__bambu--dir" aria-hidden="true"><use href="#i-bambu"/></svg>
       <svg height="24" class="bambu hero__bambu hero__bambu--esq" aria-hidden="true"><use href="#i-bambu"/></svg>
+      <div class="hero__folhas" aria-hidden="true">
+        <svg width="24" height="24" class="hero__folha" style="--i:0" aria-hidden="true"><use href="#i-folha"/></svg>
+        <svg width="24" height="24" class="hero__folha" style="--i:1" aria-hidden="true"><use href="#i-folha"/></svg>
+        <svg width="24" height="24" class="hero__folha" style="--i:2" aria-hidden="true"><use href="#i-folha"/></svg>
+        <svg width="24" height="24" class="hero__folha" style="--i:3" aria-hidden="true"><use href="#i-folha"/></svg>
+        <svg width="24" height="24" class="hero__folha" style="--i:4" aria-hidden="true"><use href="#i-folha"/></svg>
+        <svg width="24" height="24" class="hero__folha" style="--i:5" aria-hidden="true"><use href="#i-folha"/></svg>
+        <svg width="24" height="24" class="hero__folha" style="--i:6" aria-hidden="true"><use href="#i-folha"/></svg>
+      </div>
       <div class="container hero__inner">
         <div class="hero__text">
           <p class="eyebrow">Cametá · PA · Loja física e virtual</p>
           <h1>Na Boutique FFN, <em>seu estilo fala mais alto.</em></h1>
-          <p class="hero__lead">Moda masculina e feminina, shorts de sarja e linho e peças Lupo. Escolha aqui, finalize pelo WhatsApp e <strong>fica feio nunca</strong>.</p>
+          <p class="hero__lead">Moda masculina e feminina, shorts de sarja e linho e peças Lupo. Escolha aqui, pague no Pix ou cartão e <strong>fica feio nunca</strong>.</p>
           <div class="hero__cta">
             <a href="#loja" class="btn btn--gold">Ver a coleção</a>
             <a href="https://wa.me/5591985106107?text=Ol%C3%A1%2C%20Boutique%20FFN!%20Vim%20pelo%20site." class="btn btn--ghost" target="_blank" rel="noopener">Falar no WhatsApp</a>
@@ -252,64 +264,24 @@
       <div class="vazio" id="sacolaVazia"><img src="assets/img/panda.svg" alt="" width="84" height="84"><p>Sacola vazia… o panda tá com fome de look! 🎋</p></div>
     </div>
 
-    <form class="drawer__content checkout" id="checkout" hidden novalidate>
-      <button type="button" class="link-voltar" id="voltarItens">← Voltar para a sacola</button>
-      <label>Seu nome<input name="nome" required autocomplete="name"></label>
-      <fieldset>
-        <legend>Como quer receber?</legend>
-        <label class="radio"><input type="radio" name="entrega" value="retirada" checked> Retirar na loja (Rua 13 de Maio) · grátis</label>
-        <label class="radio"><input type="radio" name="entrega" value="entrega"> Receber em casa</label>
-      </fieldset>
-
-      <div class="endereco" id="campoEndereco" hidden>
-        <div class="cep-linha">
-          <label>CEP<input name="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9"></label>
-          <button type="button" class="btn btn--ghost-escuro" id="calcularFrete">Calcular frete</button>
-        </div>
-        <p class="frete-status" id="freteStatus" aria-live="polite"></p>
-        <div class="frete-opcoes" id="freteOpcoes"></div>
-        <div class="endereco__campos" id="enderecoCampos" hidden>
-          <p class="endereco__cidade" id="enderecoCidade"></p>
-          <label>Rua<input name="rua" autocomplete="address-line1"></label>
-          <div class="endereco__duo">
-            <label>Número<input name="numero" inputmode="numeric"></label>
-            <label>Bairro<input name="bairro"></label>
-          </div>
-          <label>Complemento / referência<input name="complemento" autocomplete="address-line2"></label>
-        </div>
-      </div>
-      <div class="mp-info">
-        <strong>Pagamento seguro pelo Mercado Pago</strong>
-        <span>Pix, cartão de crédito ou débito e boleto. Você conclui o pagamento no ambiente do Mercado Pago.</span>
-      </div>
-      <label>Observações (opcional)<textarea name="obs" rows="2"></textarea></label>
-      <p class="aviso" id="checkoutAviso" role="alert"></p>
-    </form>
-
     <div class="drawer__foot" id="sacolaRodape" hidden>
-      <div class="resumo">
-        <div><span>Subtotal</span><span id="sacolaSubtotal">R$ 0,00</span></div>
-        <div id="linhaFrete" hidden><span>Frete</span><span id="sacolaFrete"></span></div>
-      </div>
-      <div class="total"><span>Total</span><strong id="sacolaTotal">R$ 0,00</strong></div>
-      <button class="btn btn--gold btn--block" id="irCheckout">Finalizar pedido</button>
-      <button class="btn btn--mp btn--block" id="pagarMP" hidden form="checkout" type="submit" value="mp">Pagar com Mercado Pago</button>
-      <button class="link-whats" id="enviarPedido" hidden form="checkout" type="submit" value="whats">Prefiro combinar o pagamento pelo WhatsApp</button>
+      <div class="total"><span>Subtotal</span><strong id="sacolaSubtotal">R$ 0,00</strong></div>
+      <p class="drawer__nota">🎋 Entrega grátis em Cametá. Frete para outras cidades calculado na próxima etapa.</p>
+      <a class="btn btn--gold btn--block" href="finalizar.html" id="irCheckout">Finalizar pedido</a>
+      <button type="button" class="link-whats" id="continuarComprando">Continuar comprando</button>
     </div>
   </aside>
 
-  <!-- Retorno do Mercado Pago -->
-  <dialog class="modal modal--retorno" id="modalRetorno" aria-labelledby="retornoTitulo">
-    <div class="retorno">
-      <img src="assets/img/panda.svg" alt="" width="96" height="96">
-      <h2 id="retornoTitulo"></h2>
-      <p id="retornoTexto"></p>
-      <a class="btn btn--whats btn--block" id="retornoWhats" target="_blank" rel="noopener">Avisar a loja no WhatsApp</a>
-      <form method="dialog"><button class="link-whats">Voltar ao site</button></form>
-    </div>
-  </dialog>
 
-  <script src="js/produtos.js?v=20261020-4"></script>
-  <script src="js/app.js?v=20261020-4"></script>
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden>
+    <img src="assets/img/panda.svg" alt="" width="44" height="44">
+    <div><strong>Adicionado à sacola!</strong><span id="toastNome"></span></div>
+    <button type="button" id="toastVer">Ver sacola</button>
+  </div>
+
+  <script src="js/produtos.js?v=20261020-7"></script>
+  <script src="js/comum.js?v=20261020-7"></script>
+  <script src="js/app.js?v=20261020-7"></script>
+  <script src="js/efeitos.js?v=20261020-7"></script>
 </body>
 </html>

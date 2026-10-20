@@ -5,7 +5,7 @@
  * Preços e frete são recalculados aqui a partir do catálogo e dos Correios:
  * o valor cobrado nunca vem do navegador.
  *
- * Corpo: { pedido, nome, entrega: "retirada"|"entrega", cep, servico, endereco,
+ * Corpo: { pedido, nome, telefone, obs, entrega: "retirada"|"entrega", cep, servico, endereco,
  *          itens: [{ id, cor, tamanho, qtd }] }
  *
  * Variáveis de ambiente:
@@ -99,13 +99,15 @@ export default async function handler(req, res, env = process.env) {
     external_reference: pedido,
     statement_descriptor: "BOUTIQUE FFN",
     back_urls: {
-      success: `${site}/?pagamento=aprovado`,
-      pending: `${site}/?pagamento=pendente`,
-      failure: `${site}/?pagamento=falhou`,
+      success: `${site}/finalizar.html?pagamento=aprovado`,
+      pending: `${site}/finalizar.html?pagamento=pendente`,
+      failure: `${site}/finalizar.html?pagamento=falhou`,
     },
     metadata: {
       pedido,
       cliente: dados.nome,
+      telefone: String(dados.telefone || "").slice(0, 20),
+      observacoes: String(dados.obs || "").slice(0, 300),
       entrega: frete.descricao,
       endereco: dados.entrega === "entrega" ? [e.rua, e.numero, e.complemento, e.bairro, dados.cep].filter(Boolean).join(", ") : "",
     },
