@@ -30,3 +30,6 @@ const LOJA = {
     cupom: "",
   },
 };
+
+// aplica o tema da campanha já no carregamento (este arquivo fica no <head>)
+if (LOJA.campanha.tema && LOJA.campanha.tema !== "padrao") document.documentElement.dataset.tema = LOJA.campanha.tema;

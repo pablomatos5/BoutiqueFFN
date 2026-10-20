@@ -237,6 +237,32 @@
     document.dispatchEvent(new CustomEvent("ffn:adicionado", { detail: { origem, imagem: escolha.produto.imagem, nome: escolha.produto.nome } }));
   });
 
+  /* ---------- Campanha (js/loja.js) ---------- */
+  const campanha = LOJA.campanha || {};
+  if (campanha.aviso) {
+    const texto = `${campanha.aviso}${campanha.cupom ? ` · cupom ${campanha.cupom}` : ""}`;
+    document.querySelectorAll(".topbar__grupo").forEach((g) => {
+      const span = document.createElement("span");
+      span.className = "topbar__campanha";
+      span.textContent = texto;
+      g.prepend(span);
+    });
+  }
+  const fim = campanha.ate && new Date(`${campanha.ate}T23:59:59-03:00`);
+  if (fim && fim > new Date()) {
+    const selo = document.createElement("p");
+    selo.className = "contagem";
+    $(".hero__text").prepend(selo);
+    const tique = () => {
+      const resta = Math.max(0, fim - Date.now());
+      const d = Math.floor(resta / 864e5), h = Math.floor((resta % 864e5) / 36e5), m = Math.floor((resta % 36e5) / 6e4);
+      selo.textContent = `${campanha.aviso || "Promoção"} · termina em ${d ? `${d}d ` : ""}${h}h ${String(m).padStart(2, "0")}min`;
+      if (!resta) selo.remove();
+    };
+    tique();
+    setInterval(tique, 30_000);
+  }
+
   /* ---------- Mapa sob demanda (o do Google pesa ~1 MB) ---------- */
   $("#carregarMapa")?.addEventListener("click", (e) => {
     const capa = e.currentTarget;

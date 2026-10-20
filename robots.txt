@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /painel.html
+Disallow: /finalizar.html
+Disallow: /acompanhar.html
+Disallow: /api/

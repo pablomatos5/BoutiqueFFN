@@ -367,7 +367,7 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
   position: relative; height: 12px; margin: 0;
   background:
     repeating-linear-gradient(90deg, transparent 0 118px, rgba(0, 0, 0, .35) 118px 121px, rgba(255, 255, 255, .25) 121px 123px, transparent 123px 124px),
-    linear-gradient(180deg, #e9cf86, #c9a14a 45%, #8c6b28);
+    linear-gradient(180deg, var(--ouro-claro), var(--ouro) 45%, var(--ouro-escuro));
 }
 .divisor-bambu__ramo { position: absolute; left: 50%; top: -34px; width: 110px; height: 55px; transform: translateX(-50%); color: var(--bambu-verde); fill: var(--bambu-verde); }
 .divisor-bambu { z-index: 2; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); }
@@ -400,7 +400,7 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
 .passos li { position: relative; }
 .passos span {
   border-radius: 10px; width: 44px; height: 40px;
-  background: linear-gradient(90deg, #8c6b28, #e6c77a 45%, #c9a14a 70%, #8c6b28);
+  background: linear-gradient(90deg, var(--ouro-escuro), var(--ouro-claro) 45%, var(--ouro) 70%, var(--ouro-escuro));
   color: var(--noite); box-shadow: inset 0 3px 0 rgba(0, 0, 0, .25), inset 0 -3px 0 rgba(0, 0, 0, .25);
 }
 .passos li:not(:last-child)::after {
@@ -981,3 +981,18 @@ html { -webkit-tap-highlight-color: transparent; }
 .guia-medidas thead th { background: var(--noite); color: var(--ouro-claro); font-weight: 700; font-size: .74rem; }
 .guia-medidas tbody th { background: var(--papel); }
 .guia-medidas p { margin: 0; padding: .6rem .8rem; font-size: .74rem; color: var(--cinza); }
+
+/* ---------- Temas de campanha (js/loja.js → campanha.tema) ---------- */
+:root[data-tema="rosa"] {
+  --ouro: #e0679a; --ouro-claro: #f6b3cb; --ouro-escuro: #b03a6e;
+  --gradiente-ouro: linear-gradient(135deg, #fbd3e1 0%, #e0679a 42%, #a8325f 62%, #f4a7c3 100%);
+  --noite: #1b0f15; --noite-2: #26141d; --noite-3: #351b28; --bambu-verde: #b03a6e;
+}
+:root[data-tema="nazare"] {
+  --noite: #0c1830; --noite-2: #12223f; --noite-3: #1a3058; --bambu-verde: #2f6db5;
+}
+:root[data-tema="natal"] {
+  --noite: #1a0d0d; --noite-2: #241212; --noite-3: #3a1717; --bambu-verde: #b3261e;
+}
+.topbar__campanha { font-weight: 800; padding: .1rem .6rem; border-radius: 999px; background: var(--noite); color: var(--ouro-claro); }
+.contagem { justify-self: start; display: inline-block; margin: 0 0 1rem; padding: .45rem .9rem; border-radius: 999px; background: var(--gradiente-ouro); color: var(--noite); font-weight: 800; font-size: .78rem; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
