@@ -13,8 +13,8 @@
   <link rel="icon" href="assets/img/panda.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20261020-8">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=20261021-4">
 </head>
 <body class="pagina-finalizar">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -30,7 +30,7 @@
   <header class="header header--finalizar">
     <div class="container header__inner">
       <a href="index.html" class="marca" aria-label="Boutique FFN, voltar à loja">
-        <img class="marca__panda" src="assets/img/panda.svg" alt="" width="46" height="46">
+        <img class="marca__panda" src="assets/img/panda.webp" alt="" width="46" height="46">
         <span class="logo">
           <span class="logo__top">Boutique</span>
           <span class="logo__mark">FFN</span>
@@ -54,7 +54,7 @@
       </ol>
 
       <section class="confirmacao" id="confirmacao" hidden tabindex="-1" aria-live="polite">
-        <img src="assets/img/panda.svg" alt="" width="128" height="128">
+        <img src="assets/img/panda.webp" alt="" width="128" height="128">
         <h2 id="confTitulo">Pedido confirmado! 🐼</h2>
         <p id="confTexto"></p>
         <dl class="confirmacao__dados">
@@ -62,12 +62,14 @@
           <div><dt>Pagamento</dt><dd id="confPagamento"></dd></div>
           <div><dt>Total</dt><dd id="confTotal"></dd></div>
         </dl>
+        <a class="btn btn--gold btn--block" id="confAcompanhar">Acompanhar meu pedido</a>
         <a class="btn btn--whats btn--block" id="confWhats" target="_blank" rel="noopener">Avisar a loja no WhatsApp</a>
+        <p class="confirmacao__dica">Guarde o link de acompanhamento: ele também vai na mensagem do WhatsApp.</p>
         <a class="link-whats" href="index.html">Voltar para a loja</a>
       </section>
 
       <div class="finalizar__vazio" id="finalizarVazio" hidden>
-        <img src="assets/img/panda.svg" alt="" width="120" height="120">
+        <img src="assets/img/panda.webp" alt="" width="120" height="120">
         <h2>Sacola vazia… o panda tá com fome de look! 🎋</h2>
         <p>Escolha suas peças na loja e volte aqui para finalizar.</p>
         <a class="btn btn--gold" href="index.html#loja">Ver a coleção</a>
@@ -163,7 +165,7 @@
 
             <div class="painel-pag" id="painelCartao" role="tabpanel" aria-labelledby="abaCartao" hidden>
               <div class="cartao-visual" id="cartaoVisual" aria-hidden="true">
-                <img class="cartao-visual__panda" src="assets/img/panda-solo.svg" alt="" width="120" height="114">
+                <img class="cartao-visual__panda" src="assets/img/panda-solo.webp" alt="" width="120" height="114">
                 <span class="cartao-visual__marca">Boutique FFN</span>
                 <span class="cartao-visual__chip"></span>
                 <span class="cartao-visual__bandeira" id="cvBandeira"></span>
@@ -213,10 +215,10 @@
   </div>
 
 
-  <script src="js/produtos.js?v=20261020-8"></script>
-  <script src="js/comum.js?v=20261020-8"></script>
-  <script src="js/pagamento.js?v=20261020-8"></script>
-  <script src="js/finalizar.js?v=20261020-8"></script>
-  <script src="js/efeitos.js?v=20261020-8"></script>
+  <script src="js/produtos.js?v=20261021-4"></script>
+  <script src="js/comum.js?v=20261021-4"></script>
+  <script src="js/pagamento.js?v=20261021-4"></script>
+  <script src="js/finalizar.js?v=20261021-4"></script>
+  <script src="js/efeitos.js?v=20261021-4"></script>
 </body>
 </html>

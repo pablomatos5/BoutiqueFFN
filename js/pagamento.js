@@ -220,7 +220,7 @@ window.PagamentoFFN = (() => {
     $("#pixCopia").value = r.pix.copiaECola;
     $("#pixStatus").className = "pix-status";
     $("#pixStatus").innerHTML = `<span class="pix-status__ponto"></span> Aguardando o pagamento…`;
-    pix = { id: r.id, total, expira: Date.parse(r.pix.expira) || Date.now() + 30 * 60_000, pedido: r.pedido };
+    pix = { id: r.id, total, expira: Date.parse(r.pix.expira) || Date.now() + 30 * 60_000, pedido: r.pedido, chave: r.chave };
 
     const relogio = () => {
       const resta = Math.max(0, pix.expira - Date.now());
@@ -238,7 +238,7 @@ window.PagamentoFFN = (() => {
     if (!pix) return;
     try {
       const r = await (await fetch(`api/pagamento?id=${pix.id}`, { cache: "no-store" })).json();
-      if (r.status === "approved") concluir({ status: "approved", id: pix.id, pedido: pix.pedido, metodo: "Pix" });
+      if (r.status === "approved") concluir({ status: "approved", id: pix.id, pedido: pix.pedido, chave: pix.chave, metodo: "Pix" });
       else if (r.status === "rejected" || r.status === "cancelled") expirarPix("O Pix foi cancelado. Gere um novo para pagar.");
     } catch { /* tenta de novo na próxima */ }
   }
@@ -293,7 +293,7 @@ window.PagamentoFFN = (() => {
       return mostrarPix({ id: "DEMO", pedido: d.pedido, pix: { copiaECola: `00020126580014BR.GOV.BCB.PIX-DEMONSTRACAO-BOUTIQUE-FFN-${d.pedido}-NAO-PAGUE`, expira: new Date(Date.now() + 30 * 60_000).toISOString() } }, total);
     }
     const r = await enviar({ ...d, metodo: "pix", idempotencia: novaChave(), dispositivo: window.MP_DEVICE_SESSION_ID });
-    if (r.status === "approved") return concluir({ status: "approved", id: r.id, pedido: r.pedido, metodo: "Pix" });
+    if (r.status === "approved") return concluir({ status: "approved", id: r.id, pedido: r.pedido, chave: r.chave, metodo: "Pix" });
     if (!r.pix) throw new Error("O Mercado Pago não gerou o Pix agora. Tente de novo.");
     mostrarPix(r, total);
   }
@@ -333,8 +333,8 @@ window.PagamentoFFN = (() => {
       cartao: { token: token.id, payment_method_id: cartao.paymentMethodId, issuer_id: cartao.issuerId, installments: parcelas },
     });
     const forma = `Cartão ${cartao.bandeira} em ${r.parcelas || parcelas}x`;
-    if (r.status === "approved") return concluir({ status: "approved", id: r.id, pedido: r.pedido, metodo: forma });
-    if (r.status === "in_process" || r.status === "pending") return concluir({ status: "in_process", id: r.id, pedido: r.pedido, metodo: forma });
+    if (r.status === "approved") return concluir({ status: "approved", id: r.id, pedido: r.pedido, chave: r.chave, metodo: forma });
+    if (r.status === "in_process" || r.status === "pending") return concluir({ status: "in_process", id: r.id, pedido: r.pedido, chave: r.chave, metodo: forma });
     return aviso(r.mensagem || "O pagamento foi recusado. Tente outro cartão ou pague com Pix.");
   }
 

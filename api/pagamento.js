@@ -11,15 +11,21 @@
  *
  * GET /api/pagamento?id=123  situação de um pagamento (usado para saber quando o Pix foi pago)
  *
+ * O pedido é gravado no banco (api/_db.js) quando o Pix é gerado ou o cartão é aprovado,
+ * e avança para "aprovado" quando o pagamento se confirma (aqui, na consulta do Pix ou pelo webhook).
+ *
  * Variáveis de ambiente:
  *   MP_ACCESS_TOKEN  Access Token da conta Mercado Pago da loja (obrigatória)
  *   MP_PUBLIC_KEY    Public Key da mesma conta (lida pelo navegador via /api/config)
  *   PIX_MINUTOS      validade do Pix em minutos (padrão 30)
+ *   SITE_URL         endereço público do site (opcional; usado no aviso automático do Mercado Pago)
  */
 
 import fs from "node:fs";
 import path from "node:path";
 import { cotarFrete, normalizarPeso, responder } from "./frete.js";
+import { abrirBanco } from "./_db.js";
+import { criarPedido, aplicarPagamento } from "./_pedidos.js";
 
 const PESO_PADRAO = 300;
 const API = "https://api.mercadopago.com";
@@ -106,12 +112,26 @@ function resumoPagamento(p) {
   };
 }
 
+// Atualiza o pedido gravado com a situação do pagamento (usado também pelo webhook)
+export async function atualizarPedido(mp, env = process.env) {
+  try {
+    const banco = abrirBanco(env);
+    const pedido = banco && (await banco.obter(mp.external_reference));
+    if (pedido && aplicarPagamento(pedido, mp)) await banco.salvar(pedido);
+    return pedido;
+  } catch (e) {
+    console.error("[pedido] não foi possível atualizar", e.message);
+    return null;
+  }
+}
+
 async function consultar(req, res, env) {
   const id = soDigitos(new URL(req.url, "http://localhost").searchParams.get("id"));
   if (!id) return responder(res, 400, { erro: "Informe o id" });
   const r = await fetch(`${API}/v1/payments/${id}`, { headers: { Authorization: `Bearer ${env.MP_ACCESS_TOKEN}` } });
   if (!r.ok) return responder(res, r.status === 404 ? 404 : 502, { erro: "Pagamento não encontrado" });
   const p = await r.json();
+  if (p.external_reference) await atualizarPedido(p, env);
   res.setHeader("Cache-Control", "no-store");
   // só a situação: nada de dados do cliente
   return responder(res, 200, { id: p.id, status: p.status, detalhe: p.status_detail });
@@ -140,6 +160,7 @@ export default async function handler(req, res, env = process.env) {
   // itens pelo catálogo
   const catalogo = carregarCatalogo();
   const itens = [];
+  const itensPedido = [];
   let peso = 0;
   for (const i of Array.isArray(dados.itens) ? dados.itens.slice(0, 50) : []) {
     const p = catalogo.find((x) => x.id === i.id);
@@ -148,6 +169,7 @@ export default async function handler(req, res, env = process.env) {
       return responder(res, 400, { erro: "Item inválido na sacola" });
     }
     itens.push({ id: p.id, title: `${p.nome} (${i.cor}, tam. ${i.tamanho})`, category_id: "fashion", quantity: qtd, unit_price: p.preco });
+    itensPedido.push({ nome: p.nome, cor: i.cor, tamanho: i.tamanho, qtd, preco: p.preco });
     peso += (p.peso || PESO_PADRAO) * qtd;
   }
   if (!itens.length) return responder(res, 400, { erro: "Sacola vazia" });
@@ -214,12 +236,52 @@ export default async function handler(req, res, env = process.env) {
   };
   if (dados.dispositivo) cabecalhos["X-meli-session-id"] = String(dados.dispositivo).slice(0, 100);
 
+  const host = req.headers?.["x-forwarded-host"] || req.headers?.host || "";
+  const site = (env.SITE_URL || `${req.headers?.["x-forwarded-proto"] || "https"}://${host}`).replace(/\/$/, "");
+  if (site.startsWith("https://") && !host.startsWith("localhost")) pagamento.notification_url = `${site}/api/webhook-mp`;
+
+  // um pedido já pago não pode ser cobrado de novo
+  const banco = abrirBanco(env);
+  const existente = await banco?.obter(pedido).catch(() => null);
+  if (existente && !["aguardando", "cancelado"].includes(existente.status)) return responder(res, 409, { erro: "Esse pedido já foi pago." });
+
   const r = await fetch(`${API}/v1/payments`, { method: "POST", headers: cabecalhos, body: JSON.stringify(pagamento) });
   const resposta = await r.json().catch(() => ({}));
   if (!r.ok) {
     console.error("[pagamento] Mercado Pago", r.status, JSON.stringify(resposta));
     return responder(res, 502, { erro: "Não foi possível processar o pagamento agora. Tente de novo ou pague com Pix." });
   }
+  // grava o pedido (cartão recusado não vira pedido)
+  let chave;
+  if (resposta.status !== "rejected" && banco) {
+    try {
+      const novo = criarPedido({
+        id: pedido,
+        cliente: { nome, email, cpf, telefone: String(dados.telefone || "").slice(0, 20) },
+        entrega: {
+          tipo: dados.entrega !== "entrega" ? "retirada" : frete.descricao.startsWith("Entrega grátis") ? "local" : "correios",
+          descricao: frete.descricao,
+          endereco: dados.entrega === "entrega" ? [[e.rua, e.numero].filter(Boolean).join(", "), e.complemento, e.bairro].filter(Boolean).join(" · ") : "",
+          cep: soDigitos(dados.cep),
+          cidade: frete.local?.localidade || "Cametá",
+          uf: frete.local?.uf || "PA",
+        },
+        itens: itensPedido,
+        subtotal: centavos(total - frete.valor),
+        frete: frete.valor,
+        total,
+        obs: String(dados.obs || "").slice(0, 300),
+        pagamento: { metodo: dados.metodo === "pix" ? "Pix" : "Cartão", mpId: resposta.id, status: resposta.status, parcelas: resposta.installments },
+      });
+      if (existente) { novo.chave = existente.chave; novo.criadoEm = existente.criadoEm; }
+      aplicarPagamento(novo, resposta);
+      await banco.salvar(novo);
+      chave = novo.chave;
+    } catch (err) {
+      console.error("[pedido] não foi possível gravar", err.message);
+    }
+  }
+
   res.setHeader("Cache-Control", "no-store");
-  return responder(res, 200, { pedido, total, ...resumoPagamento(resposta) });
+  return responder(res, 200, { pedido, total, chave, ...resumoPagamento(resposta) });
 }

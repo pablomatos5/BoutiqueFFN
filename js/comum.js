@@ -12,7 +12,7 @@ window.FFN = (() => {
   const midia = (p) =>
     p.imagem
       ? `<img src="${esc(p.imagem)}" alt="${esc(p.nome)}" loading="lazy">`
-      : `<div class="sem-foto"><img src="assets/img/panda.svg" alt=""><span>${esc(p.nome)}</span></div>`;
+      : `<div class="sem-foto"><img src="assets/img/panda.webp" alt=""><span>${esc(p.nome)}</span></div>`;
 
   function carregarSacola() {
     try {
@@ -69,5 +69,49 @@ window.FFN = (() => {
     return true;
   }
 
-  return { WHATSAPP, brl, esc, semAcento, porId, midia, carregarSacola, salvarSacola, totalSacola, qtdSacola, pesoSacola, linkWhats, htmlItens, editarItem };
+  /* ---------- Pedidos: etapas (iguais às do servidor, api/_pedidos.js) ---------- */
+  const ETAPAS = {
+    correios: ["aprovado", "separando", "enviado", "saiu", "entregue"],
+    local: ["aprovado", "separando", "saiu", "entregue"],
+    retirada: ["aprovado", "separando", "pronto", "entregue"],
+  };
+  const NOMES = {
+    aguardando: "Aguardando pagamento", aprovado: "Pagamento aprovado", separando: "Separando seu pedido",
+    enviado: "Enviado pelos Correios", saiu: "Saiu para entrega", pronto: "Pronto para retirar", entregue: "Entregue", cancelado: "Cancelado",
+  };
+  const nomeStatus = (tipo, s) => (s === "entregue" && tipo === "retirada" ? "Retirado na loja" : NOMES[s]);
+  const linkAcompanhar = (id, chave) => new URL(`acompanhar.html?pedido=${encodeURIComponent(id)}${chave ? `&chave=${chave}` : ""}`, location.href).href;
+  const dataHora = (iso) => new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+
+  /* ---------- Modo demonstração: pedidos guardados no navegador ---------- */
+  const CHAVE_DEMO = "ffn-pedidos-demo";
+  const demo = {
+    listar() {
+      try { return JSON.parse(localStorage.getItem(CHAVE_DEMO)) || []; } catch { return []; }
+    },
+    salvar(p) {
+      const lista = demo.listar().filter((x) => x.id !== p.id);
+      lista.unshift(p);
+      try { localStorage.setItem(CHAVE_DEMO, JSON.stringify(lista.slice(0, 50))); } catch { /* sem espaço */ }
+    },
+    obter: (id) => demo.listar().find((p) => p.id === id) || null,
+    mudarStatus(p, status, nota) {
+      if (p.status === status) return;
+      p.status = status;
+      p.atualizadoEm = new Date().toISOString();
+      p.historico.push({ status, em: p.atualizadoEm, ...(nota ? { nota } : {}) });
+    },
+    // mesma forma da versão pública do servidor
+    publico(p) {
+      return {
+        id: p.id, criadoEm: p.criadoEm, status: p.status, nomeStatus: nomeStatus(p.entrega.tipo, p.status), primeiroNome: p.cliente.nome.split(" ")[0],
+        entrega: { tipo: p.entrega.tipo, descricao: p.entrega.descricao, cidade: p.entrega.cidade, uf: p.entrega.uf },
+        etapas: (ETAPAS[p.entrega.tipo] || ETAPAS.correios).map((s) => ({ status: s, nome: nomeStatus(p.entrega.tipo, s), em: p.historico.find((h) => h.status === s)?.em || null })),
+        historico: p.historico.map((h) => ({ ...h, nome: nomeStatus(p.entrega.tipo, h.status) })),
+        itens: p.itens, total: p.total, frete: p.frete, pagamento: p.pagamento, rastreio: p.rastreio || "",
+      };
+    },
+  };
+
+  return { WHATSAPP, brl, esc, semAcento, porId, midia, carregarSacola, salvarSacola, totalSacola, qtdSacola, pesoSacola, linkWhats, htmlItens, editarItem, ETAPAS, NOMES, nomeStatus, linkAcompanhar, dataHora, demo };
 })();

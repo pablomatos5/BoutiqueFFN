@@ -12,8 +12,8 @@
   <link rel="icon" href="assets/img/panda.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20261020-8">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=20261021-4">
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -36,7 +36,7 @@
   <header class="header">
     <div class="container header__inner">
       <a href="#inicio" class="marca" aria-label="Boutique FFN, início">
-        <img class="marca__panda" src="assets/img/panda.svg" alt="" width="46" height="46">
+        <img class="marca__panda" src="assets/img/panda.webp" alt="" width="46" height="46">
         <span class="logo">
           <span class="logo__top">Boutique</span>
           <span class="logo__mark">FFN</span>
@@ -47,9 +47,10 @@
       <nav class="nav" id="nav" aria-label="Principal">
         <a href="#loja">Loja</a>
         <a href="#loja" data-filtro-categoria="shorts">Shorts</a>
-        <a href="#loja" data-filtro-publico="feminino">Feminino</a>
+        <a href="#loja" data-filtro-categoria="feminino">Feminino</a>
         <a href="#loja" data-filtro-categoria="lupo">Lupo</a>
         <a href="#visite">Visite a loja</a>
+        <a href="acompanhar.html">Meu pedido</a>
       </nav>
 
       <div class="header__actions">
@@ -67,7 +68,7 @@
   <main id="inicio">
 
     <section class="hero">
-      <img class="hero__marca-dagua" src="assets/img/panda-solo.svg" alt="" aria-hidden="true" width="120" height="114">
+      <img loading="lazy" decoding="async" class="hero__marca-dagua" src="assets/img/panda-solo.webp" alt="" aria-hidden="true" width="120" height="114">
       <svg height="24" class="bambu hero__bambu hero__bambu--dir" aria-hidden="true"><use href="#i-bambu"/></svg>
       <svg height="24" class="bambu hero__bambu hero__bambu--esq" aria-hidden="true"><use href="#i-bambu"/></svg>
       <div class="hero__folhas" aria-hidden="true">
@@ -90,8 +91,8 @@
           </div>
         </div>
         <div class="hero__media">
-          <img src="assets/img/fachada-loja.jpg" alt="Fachada da Boutique FFN em Cametá, com o letreiro dourado e o panda" width="720" height="1280">
-          <img class="hero__panda" src="assets/img/panda.svg" alt="" aria-hidden="true" width="110" height="110">
+          <img src="assets/img/fachada-loja.webp" alt="Fachada da Boutique FFN em Cametá, com o letreiro dourado e o panda" width="640" height="1138" fetchpriority="high" decoding="async">
+          <img class="hero__panda" src="assets/img/panda.webp" alt="" aria-hidden="true" width="110" height="110">
         </div>
       </div>
     </section>
@@ -100,7 +101,7 @@
       <div class="container categorias__grid">
         <button class="cat" data-filtro-categoria="shorts"><span>Shorts &amp; Bermudas</span><small>Sarja · Linho</small></button>
         <button class="cat" data-filtro-categoria="camisas"><span>Camisas</span><small>Básicas · Estampadas</small></button>
-        <button class="cat" data-filtro-publico="feminino"><span>Feminino</span><small>Fitness · Vestidos</small></button>
+        <button class="cat" data-filtro-categoria="feminino"><span>Feminino</span><small>Fitness · Vestidos</small></button>
         <button class="cat" data-filtro-categoria="lupo"><span>Lupo</span><small>Meias · Underwear</small></button>
       </div>
     </section>
@@ -115,19 +116,14 @@
         </div>
 
         <div class="filtros" role="search">
-          <div class="chips" id="chipsCategoria" role="group" aria-label="Filtrar por categoria"></div>
-          <div class="filtros__linha">
-            <div class="chips" id="chipsPublico" role="group" aria-label="Filtrar por público">
-              <button class="chip is-active" data-publico="todos">Todos</button>
-              <button class="chip" data-publico="masculino">Masculino</button>
-              <button class="chip" data-publico="feminino">Feminino</button>
-            </div>
-            <label class="busca">
-              <span class="sr-only">Buscar produto</span>
-              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg>
-              <input type="search" id="busca" placeholder="Buscar: short, linho, lupo…">
-            </label>
-          </div>
+          <label class="busca">
+            <span class="sr-only">Buscar produto</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg>
+            <input type="search" id="busca" placeholder="Buscar: short, linho, lupo…" enterkeyhint="search" autocomplete="off">
+            <button type="button" class="busca__limpar" id="limparBusca" aria-label="Limpar busca" hidden>×</button>
+          </label>
+          <div class="abas-cat" id="chipsCategoria" role="tablist" aria-label="Categorias"></div>
+          <p class="filtros__resumo" id="resumoFiltro" aria-live="polite"></p>
         </div>
 
         <div class="grid-produtos" id="gridProdutos" aria-live="polite"></div>
@@ -147,7 +143,7 @@
         </div>
       </div>
       <svg height="24" class="bambu lupo-banner__bambu" aria-hidden="true"><use href="#i-bambu"/></svg>
-      <img class="lupo-banner__panda" src="assets/img/panda-solo.svg" alt="" aria-hidden="true" width="120" height="114">
+      <img loading="lazy" decoding="async" class="lupo-banner__panda" src="assets/img/panda-solo.webp" alt="" aria-hidden="true" width="120" height="114">
     </section>
 
     <div class="divisor-bambu divisor-bambu--esq divisor-bambu--ouro" aria-hidden="true"><svg width="24" height="24" class="divisor-bambu__ramo" aria-hidden="true"><use href="#i-ramo"/></svg></div>
@@ -187,11 +183,12 @@
         <div class="mapa">
           <svg height="24" class="bambu mapa__bambu" aria-hidden="true"><use href="#i-bambu"/></svg>
           <svg width="24" height="24" class="mapa__ramo" aria-hidden="true"><use href="#i-ramo"/></svg>
-          <iframe
-            title="Mapa: Boutique FFN, Rua 13 de Maio, Cametá-PA"
-            src="https://maps.google.com/maps?q=Rua%2013%20de%20Maio%2C%20Centro%2C%20Camet%C3%A1%20-%20PA&z=17&output=embed"
-            loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
-          <img class="mapa__panda" src="assets/img/panda.svg" alt="" aria-hidden="true" width="92" height="92">
+          <button type="button" class="mapa__capa" id="carregarMapa" data-src="https://maps.google.com/maps?q=Rua%2013%20de%20Maio%2C%20Centro%2C%20Camet%C3%A1%20-%20PA&amp;z=17&amp;output=embed">
+            <span class="mapa__pino" aria-hidden="true">📍</span>
+            <strong>Rua 13 de Maio, Centro · Cametá</strong>
+            <span>Toque para ver o mapa</span>
+          </button>
+          <img loading="lazy" decoding="async" class="mapa__panda" src="assets/img/panda.webp" alt="" aria-hidden="true" width="92" height="92">
         </div>
       </div>
     </section>
@@ -201,7 +198,7 @@
   <footer class="footer">
     <div class="divisor-bambu divisor-bambu--rodape" aria-hidden="true"></div>
     <div class="container footer__inner">
-      <img class="footer__panda" src="assets/img/panda-solo.svg" alt="" width="72" height="68">
+      <img loading="lazy" decoding="async" class="footer__panda" src="assets/img/panda-solo.webp" alt="" width="72" height="68">
       <div class="logo logo--footer">
         <span class="logo__top">Boutique</span>
         <span class="logo__mark">FFN</span>
@@ -209,7 +206,8 @@
       </div>
       <p>Moda masculina e feminina · Cametá-PA<br>
         <a href="https://wa.me/5591985106107" target="_blank" rel="noopener">WhatsApp (91) 98510-6107</a> ·
-        <a href="https://www.instagram.com/boutiqueficafeionunca_/" target="_blank" rel="noopener">Instagram</a>
+        <a href="https://www.instagram.com/boutiqueficafeionunca_/" target="_blank" rel="noopener">Instagram</a> ·
+        <a href="acompanhar.html">Acompanhar pedido</a>
       </p>
       <div class="trilha" aria-hidden="true"><svg width="24" height="24" class="trilha__pata" aria-hidden="true"><use href="#i-pata"/></svg><svg width="24" height="24" class="trilha__pata" aria-hidden="true"><use href="#i-pata"/></svg><svg width="24" height="24" class="trilha__pata" aria-hidden="true"><use href="#i-pata"/></svg></div>
       <p class="footer__copy">© <span id="ano"></span> Boutique FFN. Seja exclusivo.</p>
@@ -261,7 +259,7 @@
 
     <div class="drawer__content" id="sacolaEtapaItens">
       <ul class="sacola-lista" id="sacolaLista"></ul>
-      <div class="vazio" id="sacolaVazia"><img src="assets/img/panda.svg" alt="" width="84" height="84"><p>Sacola vazia… o panda tá com fome de look! 🎋</p></div>
+      <div class="vazio" id="sacolaVazia"><img src="assets/img/panda.webp" alt="" width="84" height="84"><p>Sacola vazia… o panda tá com fome de look! 🎋</p></div>
     </div>
 
     <div class="drawer__foot" id="sacolaRodape" hidden>
@@ -274,14 +272,14 @@
 
 
   <div class="toast" id="toast" role="status" aria-live="polite" hidden>
-    <img src="assets/img/panda.svg" alt="" width="44" height="44">
+    <img src="assets/img/panda.webp" alt="" width="44" height="44">
     <div><strong>Adicionado à sacola!</strong><span id="toastNome"></span></div>
     <button type="button" id="toastVer">Ver sacola</button>
   </div>
 
-  <script src="js/produtos.js?v=20261020-8"></script>
-  <script src="js/comum.js?v=20261020-8"></script>
-  <script src="js/app.js?v=20261020-8"></script>
-  <script src="js/efeitos.js?v=20261020-8"></script>
+  <script src="js/produtos.js?v=20261021-4"></script>
+  <script src="js/comum.js?v=20261021-4"></script>
+  <script src="js/app.js?v=20261021-4"></script>
+  <script src="js/efeitos.js?v=20261021-4"></script>
 </body>
 </html>

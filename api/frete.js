@@ -16,7 +16,7 @@
 const API = "https://api.correios.com.br";
 let tokenCache = { token: null, expira: 0 };
 
-async function obterToken(env) {
+export async function obterToken(env) {
   if (tokenCache.token && Date.now() < tokenCache.expira - 60_000) return tokenCache.token;
 
   const basic = Buffer.from(`${env.CORREIOS_USUARIO}:${env.CORREIOS_CODIGO_ACESSO}`).toString("base64");

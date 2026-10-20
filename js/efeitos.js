@@ -83,7 +83,7 @@
 
     const bola = document.createElement("div");
     bola.className = "voo";
-    bola.innerHTML = `<img src="${imagem || "assets/img/panda.svg"}" alt="">`;
+    bola.innerHTML = `<img src="${imagem || "assets/img/panda.webp"}" alt="">`;
     document.body.appendChild(bola);
 
     bola
@@ -116,6 +116,14 @@
     }).observe(contador, { childList: true });
   }
 
+  /* ---------- Animações contínuas só rodam com a parte na tela ---------- */
+  // fora da tela elas ficam pausadas: o celular não gasta bateria nem quadros com o que ninguém vê
+  const pausaveis = document.querySelectorAll(".topbar, .hero, .divisor-bambu, .mapa, .footer, .lupo-banner, .pix-codigo");
+  const vigia = new IntersectionObserver((entradas) => {
+    for (const e of entradas) e.target.toggleAttribute("data-visivel", e.isIntersecting);
+  });
+  pausaveis.forEach((el) => { el.setAttribute("data-pausa", ""); vigia.observe(el); });
+
   /* ---------- Revelar ao rolar ---------- */
   const observador = new IntersectionObserver(
     (entradas) => {
@@ -140,7 +148,7 @@
   revelar(document.querySelectorAll(".section-head, .lupo-banner, .visite__text, .mapa, .divisor-bambu"), 0);
   revelar(document.querySelectorAll(".cat"), 80);
   revelar(document.querySelectorAll(".passos li"), 160);
-  revelar(document.querySelectorAll(".etapa, .resumo-pedido, .finalizar__vazio"), 90);
+  revelar(document.querySelectorAll(".finalizar__etapas > .etapa, .resumo-pedido, .finalizar__vazio"), 90);
 
   // cards da vitrine: anima de novo a cada filtro/busca
   const grade = $("#gridProdutos");

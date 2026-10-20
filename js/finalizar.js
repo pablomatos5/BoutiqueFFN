@@ -234,7 +234,7 @@
     }
     aviso("");
     return {
-      pedido: `FFN-${Date.now().toString(36).toUpperCase()}`,
+      pedido: `FFN-${Date.now().toString(36).toUpperCase()}${Math.random().toString(36).slice(2, 5).toUpperCase()}`,
       nome,
       telefone: form.telefone.value.trim(),
       email: form.email.value.trim(),
@@ -248,7 +248,7 @@
     };
   }
 
-  function mensagemPedido(d, pagamento) {
+  function mensagemPedido(d, pagamento, link) {
     const linhas = sacola.map((i) => {
       const p = porId(i.id);
       return `• ${i.qtd}x ${p.nome} (${i.cor}, tam. ${i.tamanho}): ${brl(p.preco * i.qtd)}`;
@@ -282,6 +282,8 @@
       envio,
       `Pagamento: ${pagamento}`,
       form.obs.value.trim() ? `Obs.: ${form.obs.value.trim()}` : "",
+      link ? `` : "",
+      link ? `Acompanhar pedido: ${link}` : "",
     ].filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n").trim();
   }
 
@@ -310,6 +312,27 @@
     else pagar(d);
   });
 
+  // Modo demonstração: o pedido fica guardado no navegador para aparecer no acompanhamento e no painel
+  function salvarPedidoDemo(d, r) {
+    const agora = new Date().toISOString();
+    const tipo = d.entrega === "retirada" ? "retirada" : frete.tipo === "gratis" ? "local" : "correios";
+    FFN.demo.salvar({
+      id: d.pedido, chave: "", criadoEm: agora, atualizadoEm: agora, status: "aprovado", demo: true,
+      cliente: { nome: d.nome, email: d.email, cpf: d.cpf, telefone: d.telefone },
+      entrega: {
+        tipo,
+        descricao: { retirada: "Retirada na loja", local: "Entrega grátis em Cametá", correios: `${frete.servico || "Correios"} para ${cotacao?.local?.localidade || ""}-${cotacao?.local?.uf || ""}` }[tipo],
+        endereco: tipo === "retirada" ? "" : [[d.endereco.rua, d.endereco.numero].filter(Boolean).join(", "), d.endereco.complemento, d.endereco.bairro].filter(Boolean).join(" · "),
+        cep: d.cep, cidade: cotacao?.local?.localidade || "Cametá", uf: cotacao?.local?.uf || "PA",
+      },
+      itens: sacola.map((i) => ({ nome: porId(i.id).nome, cor: i.cor, tamanho: i.tamanho, qtd: i.qtd, preco: porId(i.id).preco })),
+      subtotal: FFN.totalSacola(sacola), frete: frete.valor || 0, total: totalPedido(), obs: d.obs,
+      pagamento: { metodo: r.metodo, status: "approved" },
+      rastreio: "",
+      historico: [{ status: "aguardando", em: agora }, { status: "aprovado", em: agora }],
+    });
+  }
+
   /* ---------- Pedido concluído ---------- */
   function concluido(r) {
     const d = ultimoPedido;
@@ -323,7 +346,11 @@
     $("#confPagamento").textContent = `${r.metodo}${aprovado ? " · aprovado" : " · em análise"}`;
     $("#confTotal").textContent = total;
     const situacao = `${r.metodo} ${aprovado ? "aprovado" : "em análise"}${r.id && r.id !== "DEMO" ? ` (ID ${r.id})` : ""}`;
-    $("#confWhats").href = linkWhats(mensagemPedido(d, situacao));
+    if (r.id === "DEMO") salvarPedidoDemo(d, r);
+    const link = FFN.linkAcompanhar(r.pedido || d.pedido, r.chave);
+    $("#confAcompanhar").href = link;
+    $("#confWhats").href = linkWhats(mensagemPedido(d, situacao, link));
+    try { localStorage.setItem("ffn-ultimo-pedido", JSON.stringify({ id: r.pedido || d.pedido, chave: r.chave || "" })); } catch { /* ok */ }
 
     form.hidden = true;
     $(".passos-checkout").querySelectorAll("li").forEach((li) => { li.classList.add("is-feito"); li.classList.remove("is-atual"); });

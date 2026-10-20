@@ -10,21 +10,23 @@
   }
 
   /* ---------- Vitrine ---------- */
-  const filtro = { categoria: "todas", publico: "todos", busca: "" };
+  const filtro = { categoria: "todas", busca: "" };
+  const contagem = (k) => (k === "todas" ? PRODUTOS.length : PRODUTOS.filter((p) => p.categoria === k).length);
 
-  function montarChipsCategoria() {
-    const chips = [["todas", "Tudo"], ...Object.entries(CATEGORIAS)];
-    $("#chipsCategoria").innerHTML = chips
-      .map(([k, nome]) => `<button class="chip" data-categoria="${k}">${esc(nome)}</button>`)
+  function montarAbasCategoria() {
+    const abas = [["todas", "Tudo"], ...Object.entries(CATEGORIAS)];
+    $("#chipsCategoria").innerHTML = abas
+      .map(([k, nome]) => `<button type="button" role="tab" class="aba-cat" data-categoria="${k}">${esc(nome)}<span>${contagem(k)}</span></button>`)
       .join("");
   }
 
   function renderVitrine() {
     const termo = semAcento(filtro.busca.trim());
+    // buscando, procura em todas as categorias
+    const categoria = termo ? "todas" : filtro.categoria;
     const lista = PRODUTOS.filter((p) => {
-      if (filtro.categoria !== "todas" && p.categoria !== filtro.categoria) return false;
-      if (filtro.publico !== "todos" && p.publico !== filtro.publico && p.publico !== "unissex") return false;
-      if (termo && !semAcento(`${p.nome} ${p.descricao} ${CATEGORIAS[p.categoria]} ${p.selo || ""}`).includes(termo)) return false;
+      if (categoria !== "todas" && p.categoria !== categoria) return false;
+      if (termo && !semAcento(`${p.nome} ${p.descricao} ${CATEGORIAS[p.categoria]} ${p.selo || ""} ${p.cores.join(" ")}`).includes(termo)) return false;
       return true;
     });
 
@@ -49,14 +51,20 @@
       )
       .join("");
     $("#semResultados").hidden = lista.length > 0;
+    $("#resumoFiltro").textContent = termo
+      ? `${lista.length} ${lista.length === 1 ? "peça encontrada" : "peças encontradas"} para “${filtro.busca.trim()}”`
+      : `${lista.length} ${lista.length === 1 ? "peça" : "peças"}`;
+    $("#limparBusca").hidden = !filtro.busca;
 
-    document.querySelectorAll("#chipsCategoria .chip").forEach((c) => c.classList.toggle("is-active", c.dataset.categoria === filtro.categoria));
-    document.querySelectorAll("#chipsPublico .chip").forEach((c) => c.classList.toggle("is-active", c.dataset.publico === filtro.publico));
+    document.querySelectorAll("#chipsCategoria .aba-cat").forEach((c) => {
+      const ativa = c.dataset.categoria === categoria;
+      c.setAttribute("aria-selected", String(ativa));
+      if (ativa && !termo) c.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+    });
   }
 
-  function aplicarFiltro({ categoria = "todas", publico = "todos" }) {
+  function aplicarFiltro({ categoria = "todas" }) {
     filtro.categoria = categoria;
-    filtro.publico = publico;
     filtro.busca = "";
     $("#busca").value = "";
     renderVitrine();
@@ -64,11 +72,11 @@
   }
 
   document.addEventListener("click", (e) => {
-    const atalho = e.target.closest("[data-filtro-categoria], [data-filtro-publico]");
+    const atalho = e.target.closest("[data-filtro-categoria]");
     if (atalho) {
       e.preventDefault();
       fecharMenu();
-      aplicarFiltro({ categoria: atalho.dataset.filtroCategoria, publico: atalho.dataset.filtroPublico });
+      aplicarFiltro({ categoria: atalho.dataset.filtroCategoria });
       return;
     }
     const abrir = e.target.closest("[data-abrir]");
@@ -79,17 +87,21 @@
     const c = e.target.closest("[data-categoria]");
     if (!c) return;
     filtro.categoria = c.dataset.categoria;
+    filtro.busca = "";
+    $("#busca").value = "";
     renderVitrine();
   });
-  $("#chipsPublico").addEventListener("click", (e) => {
-    const c = e.target.closest("[data-publico]");
-    if (!c) return;
-    filtro.publico = c.dataset.publico;
-    renderVitrine();
-  });
+  let esperaBusca;
   $("#busca").addEventListener("input", (e) => {
     filtro.busca = e.target.value;
+    clearTimeout(esperaBusca);
+    esperaBusca = setTimeout(renderVitrine, 120); // não redesenha a cada tecla
+  });
+  $("#limparBusca").addEventListener("click", () => {
+    filtro.busca = "";
+    $("#busca").value = "";
     renderVitrine();
+    $("#busca").focus();
   });
 
   /* ---------- Menu mobile ---------- */
@@ -164,6 +176,18 @@
     document.dispatchEvent(new CustomEvent("ffn:adicionado", { detail: { origem, imagem: escolha.produto.imagem, nome: escolha.produto.nome } }));
   });
 
+  /* ---------- Mapa sob demanda (o do Google pesa ~1 MB) ---------- */
+  $("#carregarMapa")?.addEventListener("click", (e) => {
+    const capa = e.currentTarget;
+    const iframe = Object.assign(document.createElement("iframe"), {
+      title: "Mapa: Boutique FFN, Rua 13 de Maio, Cametá-PA",
+      src: capa.dataset.src,
+      referrerPolicy: "no-referrer-when-downgrade",
+      allowFullscreen: true,
+    });
+    capa.replaceWith(iframe);
+  });
+
   /* ---------- Sacola (gaveta) ---------- */
   let sacola = FFN.carregarSacola();
 
@@ -220,7 +244,7 @@
 
   /* ---------- Início ---------- */
   $("#ano").textContent = new Date().getFullYear();
-  montarChipsCategoria();
+  montarAbasCategoria();
   renderVitrine();
   renderSacola();
 })();
