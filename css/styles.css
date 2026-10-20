@@ -176,7 +176,7 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
 
 /* Lupo */
 /* Lupo: faixa no estilo da fachada, com o panda grande à direita */
-.lupo-banner { position: relative; overflow: hidden; background: linear-gradient(90deg, var(--noite) 55%, var(--noite-3)); color: var(--creme); padding-block: 3.5rem; border-block: 1px solid rgba(201, 161, 74, .3); }
+.lupo-banner { position: relative; overflow: hidden; background: linear-gradient(90deg, var(--noite) 55%, var(--noite-3)); color: var(--creme); padding-block: 3.5rem; }
 .lupo-banner__inner { position: relative; z-index: 1; }
 .lupo-banner__texto { max-width: 560px; display: grid; gap: .9rem; justify-items: start; }
 .lupo-banner__texto h2 { margin: 0; }
@@ -350,6 +350,10 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
     linear-gradient(180deg, #e9cf86, #c9a14a 45%, #8c6b28);
 }
 .divisor-bambu__ramo { position: absolute; left: 50%; top: -34px; width: 110px; height: 55px; transform: translateX(-50%); color: var(--bambu-verde); fill: var(--bambu-verde); }
+.divisor-bambu { z-index: 2; box-shadow: 0 2px 6px rgba(0, 0, 0, .25); }
+.divisor-bambu--dir .divisor-bambu__ramo { left: auto; right: 8%; transform: scaleX(-1); }
+.divisor-bambu--esq .divisor-bambu__ramo { left: 8%; transform: none; }
+.divisor-bambu--ouro .divisor-bambu__ramo { color: var(--ouro); fill: var(--ouro); }
 .divisor-bambu--rodape { height: 8px; opacity: .8; margin: -2.5rem 0 2.25rem; }
 
 /* Folhinhas ao lado dos títulos de seção */
