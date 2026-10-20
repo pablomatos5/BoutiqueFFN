@@ -1071,3 +1071,15 @@ html { -webkit-tap-highlight-color: transparent; }
   .galeria { aspect-ratio: 1 / 1; }
   .modal__media .sem-foto { aspect-ratio: 4 / 3; }
 }
+
+/* ---------- iOS 26: área do relógio e da barra do Safari ----------
+   O Safari deixa essa área transparente e o conteúdo da página aparece por trás ao rolar.
+   Pintamos tudo acima do cabeçalho fixo com a cor dele. Na loja, só depois que a faixa
+   dourada do topo saiu da tela (classe is-compacto, ligada pelo efeitos.js ao rolar). */
+.header::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 100vh;
+  background: var(--noite); pointer-events: none; display: none;
+}
+.header--finalizar::before, .header.is-compacto::before { display: block; }
+html { background: var(--noite); }
+body { background: var(--papel); }

@@ -27,6 +27,18 @@
     if (!reduzir) voarParaSacola(origem, imagem);
   });
 
+  /* ---------- Cabeçalho fixo: marca quando a página rolou ----------
+     Vale sempre (também com "reduzir movimento"): além de encolher a marca, liga o fundo que
+     cobre a área transparente do Safari no iOS 26 acima do cabeçalho. */
+  const header = $(".header");
+  let rolou = false;
+  const conferirRolagem = () => {
+    const agora = scrollY > 40;
+    if (agora !== rolou) header?.classList.toggle("is-compacto", (rolou = agora));
+  };
+  addEventListener("scroll", conferirRolagem, { passive: true });
+  conferirRolagem();
+
   if (reduzir) return;
   raiz.classList.add("anim");
 
@@ -157,18 +169,6 @@
     revelarCards();
     new MutationObserver(revelarCards).observe(grade, { childList: true });
   }
-
-  /* ---------- Cabeçalho compacto ao rolar ---------- */
-  const header = $(".header");
-  let rolou = false;
-  addEventListener(
-    "scroll",
-    () => {
-      const agora = scrollY > 60;
-      if (agora !== rolou) header.classList.toggle("is-compacto", (rolou = agora));
-    },
-    { passive: true }
-  );
 
   if (!ponteiroFino) return;
 
