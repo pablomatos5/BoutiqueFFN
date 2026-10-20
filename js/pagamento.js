@@ -70,7 +70,7 @@ window.PagamentoFFN = (() => {
   function preencherParcelas(lista) {
     const sel = $("#parcelas");
     sel.innerHTML = lista.length
-      ? lista.map((p) => `<option value="${p.n}">${p.texto}</option>`).join("")
+      ? lista.map((p) => `<option value="${Number(p.n)}">${FFN.esc(p.texto)}</option>`).join("")
       : `<option value="">Digite o número do cartão</option>`;
   }
 
