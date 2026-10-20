@@ -7,11 +7,14 @@ O estudo de identidade visual que guiou o layout está em [`docs/identidade-visu
 ## Estrutura
 
 ```
-index.html          loja: abertura, categorias, vitrine, Lupo, como comprar, endereço
+index.html          loja: abertura, categorias, vitrine, Lupo, como comprar, endereço (?produto=ID abre a peça)
 finalizar.html      página de finalizar pedido: sacola, dados, entrega/frete e pagamento
 acompanhar.html     o cliente acompanha o pedido (linha do tempo e rastreio dos Correios)
-painel.html         painel da loja (com senha): pedidos, status, código de rastreio, aviso no WhatsApp
-css/styles.css      estilos (cores e fontes no topo, em :root)
+painel.html         painel da loja (com senha): pedidos, status, rastreio, aviso no WhatsApp e cupons
+trocas.html         política de trocas e devoluções
+privacidade.html    política de privacidade (LGPD)
+css/styles.css      estilos (cores e fontes no topo, em :root; temas de campanha no fim)
+js/loja.js          DADOS DA LOJA: razão social, CNPJ, contatos, prazos de troca e campanha
 js/produtos.js      catálogo: edite aqui produtos, preços, cores e tamanhos
 js/comum.js         funções usadas pelas duas páginas (sacola salva no navegador, preços, itens)
 js/app.js           loja: vitrine, filtros, detalhe do produto e gaveta da sacola
@@ -26,9 +29,15 @@ api/config.js       entrega ao navegador a Public Key do Mercado Pago
 api/pedido.js       consulta pública do pedido (link com chave secreta ou número + CPF)
 api/painel.js       login e ações do painel da loja
 api/webhook-mp.js   aviso automático do Mercado Pago (pedido pago com o site fechado)
+api/cupom.js        confere um cupom para mostrar o desconto na tela
+api/_cupons.js      regras dos cupons
+api/_avisos.js      aviso de pedido pago para a loja no Telegram
+api/_limite.js      limite de tentativas por endereço
 api/_db.js          banco dos pedidos (Vercel KV/Upstash, ou arquivo no npm run dev)
 api/_pedidos.js     etapas dos pedidos e rastreio dos Correios
-server.js           servidor local (site + funções de api/)
+server.js           servidor local (site + funções de api/ + cabeçalhos de segurança)
+seguranca.json      cabeçalhos de segurança (iguais aos do vercel.json)
+testes/             testes automáticos do servidor (npm test)
 assets/img/         fotos e o panda
 ```
 
@@ -37,10 +46,16 @@ Não há build nem dependências: HTML, CSS e JavaScript puro, mais uma função
 ## Rodar localmente
 
 ```bash
-cp .env.example .env   # preencha as credenciais dos Correios (opcional para testar)
-npm run dev
-# http://localhost:8000
+cp .env.example .env   # preencha as credenciais (todas opcionais para testar)
+npm run dev            # http://localhost:8000
+npm test               # testes do servidor: frete, pagamento, pedidos, painel, cupons, limites
 ```
+
+## Antes de publicar: dados da loja
+
+Preencha `js/loja.js`: **razão social, CNPJ e e-mail** aparecem no rodapé e nas páginas legais (a lei do comércio eletrônico, Decreto 7.962/2013, exige razão social, CNPJ, endereço e contato no site). Confira também os prazos de troca e o texto de `trocas.html` com a loja.
+
+Ao ter o domínio definitivo, troque `assets/img/compartilhar.jpg` em `og:image` (no `index.html`) pelo endereço completo (`https://.../assets/img/compartilhar.jpg`), para a imagem aparecer ao compartilhar o link no WhatsApp.
 
 ## Entrega e frete
 
@@ -103,6 +118,29 @@ Com código de rastreio, aparecem os eventos da **API de Rastreio dos Correios**
 **Loja (`painel.html`, com `PAINEL_SENHA`):** abas *A fazer*, *A caminho*, *Concluídos*, *Aguardando pagamento*; busca por nome, pedido ou cidade; botão para a próxima etapa; campo do código de rastreio (salvar o código já marca *Enviado*); **Avisar no WhatsApp**, que abre a conversa com o cliente com a mensagem pronta para a etapa e o link de acompanhamento; dados completos do pedido e histórico. A lista se atualiza a cada minuto.
 
 **Ativar:** na Vercel, *Storage → Create → KV (Upstash)* e conecte ao projeto (cria `KV_REST_API_URL` e `KV_REST_API_TOKEN`); defina `PAINEL_SENHA`; no Mercado Pago, cadastre o webhook `https://SEU-SITE/api/webhook-mp` (evento *Pagamentos*) e copie a assinatura secreta para `MP_WEBHOOK_SECRET`. Sem banco ou na prévia estática, acompanhamento e painel ficam em **modo demonstração** (pedidos de exemplo e os feitos no próprio aparelho).
+
+## Cupons e campanhas
+
+- **Cupons:** painel → *Cupons*. Desconto em % (até 90%) ou em R$, validade, limite de usos e compra mínima. O servidor confere e recalcula o desconto na cobrança; o uso só conta quando o pagamento é aprovado. Para divulgar, use o link `https://SEU-SITE/?cupom=CODIGO`: o desconto já vem aplicado no checkout.
+- **Campanha:** em `js/loja.js` → `campanha`: `tema` (`"rosa"` para Outubro Rosa, `"nazare"` para o Círio, `"natal"`), `aviso` (faixa do topo), `ate` (contagem regressiva na abertura) e `cupom` (sugerido no checkout). Volte para `tema: "padrao"` e `aviso: ""` ao terminar.
+
+## Aviso de pedido novo (Telegram)
+
+Quando um pagamento é aprovado, a loja recebe no Telegram: peças, total, forma de pagamento, entrega, cliente e link do painel.
+
+1. No Telegram, fale com **@BotFather** → `/newbot` → copie o token para `TELEGRAM_BOT_TOKEN`.
+2. Mande qualquer mensagem para o bot novo e abra `https://api.telegram.org/bot<TOKEN>/getUpdates`: o número em `chat.id` vai em `TELEGRAM_CHAT_ID`.
+
+## Segurança
+
+- Cabeçalhos de segurança (CSP, bloqueio de iframe, nosniff, Referrer e Permissions-Policy) no `vercel.json` e no servidor local.
+- Limite de tentativas por endereço: senha do painel (10 a cada 15 min), pagamento (15 a cada 10 min), consulta de pedido por CPF (30 a cada 15 min + 8 por pedido) e cupons (20 a cada 10 min). O IP é guardado só como resumo (hash).
+- Preço, frete e desconto sempre recalculados no servidor; cartão nunca passa pelo servidor (token do Mercado Pago).
+- `data/` (pedidos no modo local) nunca é servido nem publicado (`.gitignore` e `.vercelignore`).
+
+## Páginas de produto e compartilhamento
+
+Cada peça tem um link próprio (`?produto=short-sarja-madrid`): abre a peça direto, ideal para Stories, Destaques e WhatsApp. O botão **Compartilhar** usa o menu do celular (ou copia o link). O guia de medidas por categoria fica em `MEDIDAS`, no `js/produtos.js` (valores de referência: confirme com as peças da loja).
 
 ## Cadastrar ou alterar produtos
 
