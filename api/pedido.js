@@ -6,6 +6,7 @@
  */
 import { responder } from "./frete.js";
 import { abrirBanco } from "./_db.js";
+import { dentroDoLimite } from "./_limite.js";
 import { podeVer, versaoPublica, rastrear, aplicarRastreio } from "./_pedidos.js";
 
 async function lerCorpo(req) {
@@ -26,8 +27,9 @@ export default async function handler(req, res, env = process.env) {
   const naoEncontrado = () => responder(res, 404, { erro: "Não encontramos esse pedido. Confira o número e o CPF." });
   if (!id) return naoEncontrado();
 
-  // limita tentativas com CPF por pedido (evita adivinhação)
+  // limita tentativas com CPF por pedido e por endereço (evita adivinhação)
   if (!dados.chave) {
+    if (!(await dentroDoLimite(banco, "pedido", req, 30, 15 * 60))) return responder(res, 429, { erro: "Muitas tentativas. Espere alguns minutos ou fale com a loja no WhatsApp." });
     const chaveLimite = `tentativas:${id}`;
     const tentativas = (await banco.lerCache(chaveLimite).catch(() => 0)) || 0;
     if (tentativas >= 8) return responder(res, 429, { erro: "Muitas tentativas. Espere alguns minutos ou fale com a loja no WhatsApp." });

@@ -949,3 +949,20 @@ html { -webkit-tap-highlight-color: transparent; }
 .finalizar .busca input { border: 0; padding: .8rem 0; background: transparent; border-radius: 0; }
 .finalizar .busca input:focus { outline: none; background: transparent; }
 .painel .demo-aviso { margin-bottom: 1rem; }
+
+/* ---------- Páginas legais e rodapé simples ---------- */
+.legal__texto { max-width: 720px; padding-bottom: 2rem; }
+.legal__texto h2 { font-family: var(--fonte-titulo); font-size: 1.15rem; margin: 1.8rem 0 .5rem; }
+.legal__texto p, .legal__texto li { color: #39403c; line-height: 1.7; }
+.legal__texto ul { padding-left: 1.2rem; display: grid; gap: .35rem; }
+.legal__texto a { color: var(--ouro-escuro); font-weight: 600; }
+.legal__intro { font-size: 1.02rem; }
+.rodape-simples { padding: 1.5rem 16px calc(6rem + env(safe-area-inset-bottom)); text-align: center; font-size: .78rem; color: var(--cinza); display: grid; gap: .3rem; }
+.rodape-simples p { margin: 0; }
+.rodape-simples a { color: var(--ouro-escuro); }
+.footer__links a, .footer__legal { font-size: .78rem; }
+.footer__legal { opacity: .75; margin: 0; }
+.footer__legal:empty { display: none; }
+.aceite { margin: 0; font-size: .74rem; color: #a8b0ab; text-align: center; }
+.aceite a { color: var(--ouro-claro); }
+@media (min-width: 960px) { .rodape-simples { padding-bottom: 2rem; } }

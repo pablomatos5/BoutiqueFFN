@@ -1,0 +1,6 @@
+data/
+server.js
+.env
+.env.example
+testes/
+seguranca.json

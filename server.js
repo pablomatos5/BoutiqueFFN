@@ -14,10 +14,14 @@ if (fs.existsSync(path.join(raiz, ".env"))) {
   }
 }
 
+// mesmos cabeçalhos de segurança da Vercel, para testar localmente
+const seguranca = JSON.parse(fs.readFileSync(path.join(raiz, "seguranca.json"), "utf8")).headers;
+
 const tipos = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml", ".jpg": "image/jpeg", ".png": "image/png", ".json": "application/json" };
 
 http
   .createServer((req, res) => {
+    for (const [k, v] of Object.entries(seguranca)) res.setHeader(k, k === "Content-Security-Policy" ? v.replace("; upgrade-insecure-requests", "") : v);
     const url = new URL(req.url, "http://localhost");
     const rota = url.pathname.match(/^\/api\/([a-z-]+)$/);
     if (rota) {
@@ -27,7 +31,7 @@ http
     }
 
     const arquivo = path.normalize(path.join(raiz, url.pathname === "/" ? "index.html" : decodeURIComponent(url.pathname)));
-    if (!arquivo.startsWith(raiz) || /[\\/](\.env|api|node_modules)/.test(arquivo.slice(raiz.length)) || !fs.existsSync(arquivo) || fs.statSync(arquivo).isDirectory()) {
+    if (!arquivo.startsWith(raiz) || /[\\/](\.env|api|node_modules|data|seguranca\.json)/.test(arquivo.slice(raiz.length)) || !fs.existsSync(arquivo) || fs.statSync(arquivo).isDirectory()) {
       res.statusCode = 404;
       return res.end("Não encontrado");
     }

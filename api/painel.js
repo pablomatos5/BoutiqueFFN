@@ -9,6 +9,7 @@
 import crypto from "node:crypto";
 import { responder } from "./frete.js";
 import { abrirBanco } from "./_db.js";
+import { dentroDoLimite } from "./_limite.js";
 import { mudarStatus, STATUS_VALIDOS, codigoRastreioValido, rastrear, aplicarRastreio, ETAPAS } from "./_pedidos.js";
 
 const VALIDADE_H = 12;
@@ -40,6 +41,10 @@ export default async function handler(req, res, env = process.env) {
   const acao = new URL(req.url, "http://localhost").searchParams.get("acao");
 
   if (acao === "entrar") {
+    // no máximo 10 tentativas de senha a cada 15 minutos por endereço
+    if (!(await dentroDoLimite(abrirBanco(env), "painel", req, 10, 15 * 60))) {
+      return responder(res, 429, { erro: "Muitas tentativas. Espere 15 minutos." });
+    }
     const { senha } = await lerCorpo(req);
     if (!senha || !iguais(senha, env.PAINEL_SENHA)) {
       await new Promise((ok) => setTimeout(ok, 800)); // freia tentativas de adivinhar

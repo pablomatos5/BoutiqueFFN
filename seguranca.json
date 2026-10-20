@@ -1,0 +1,11 @@
+{
+  "comentario": "Cabeçalhos de segurança: lidos pelo server.js (npm run dev). Mantenha igual ao bloco headers do vercel.json.",
+  "headers": {
+    "Content-Security-Policy": "default-src 'self'; script-src 'self' https://sdk.mercadopago.com https://www.mercadopago.com https://*.mercadopago.com https://*.mercadolibre.com https://*.mlstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob: https:; connect-src 'self' https://viacep.com.br https://*.mercadopago.com https://*.mercadolibre.com https://*.mlstatic.com; frame-src https://www.google.com https://maps.google.com https://*.mercadopago.com https://*.mercadolibre.com https://*.mlstatic.com; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; object-src 'none'; upgrade-insecure-requests",
+    "X-Content-Type-Options": "nosniff",
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+    "Permissions-Policy": "camera=(), microphone=(), geolocation=(), payment=(self)",
+    "Cross-Origin-Opener-Policy": "same-origin"
+  }
+}

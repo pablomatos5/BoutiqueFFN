@@ -25,6 +25,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { cotarFrete, normalizarPeso, responder } from "./frete.js";
 import { abrirBanco } from "./_db.js";
+import { dentroDoLimite } from "./_limite.js";
 import { criarPedido, aplicarPagamento } from "./_pedidos.js";
 
 const PESO_PADRAO = 300;
@@ -141,6 +142,11 @@ export default async function handler(req, res, env = process.env) {
   if (!env.MP_ACCESS_TOKEN) return responder(res, 503, { erro: "Pagamento online ainda não configurado" });
   if (req.method === "GET") return consultar(req, res, env);
   if (req.method !== "POST") return responder(res, 405, { erro: "Método não permitido" });
+
+  // no máximo 15 tentativas de pagamento a cada 10 minutos por endereço (evita Pix falso em massa)
+  if (!(await dentroDoLimite(abrirBanco(env), "pagamento", req, 15, 10 * 60))) {
+    return responder(res, 429, { erro: "Muitas tentativas seguidas. Espere alguns minutos ou fale com a loja no WhatsApp." });
+  }
 
   let dados;
   try {

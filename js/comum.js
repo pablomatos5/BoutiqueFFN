@@ -1,6 +1,6 @@
 /* Boutique FFN · utilidades compartilhadas pela loja (index.html) e pela página de finalizar (finalizar.html) */
 window.FFN = (() => {
-  const WHATSAPP = "5591985106107";
+  const WHATSAPP = LOJA.whatsapp;
   const CHAVE_SACOLA = "ffn-sacola";
   const PESO_PADRAO = 300; // gramas por peça quando o produto não informa `peso`
 
@@ -112,6 +112,12 @@ window.FFN = (() => {
       };
     },
   };
+
+  /* ---------- Dados legais da loja no rodapé ---------- */
+  document.querySelectorAll("[data-loja-legal]").forEach((el) => {
+    const partes = [LOJA.razaoSocial, LOJA.cnpj && `CNPJ ${LOJA.cnpj}`, LOJA.endereco, LOJA.email].filter(Boolean);
+    el.textContent = partes.join(" · ");
+  });
 
   return { WHATSAPP, brl, esc, semAcento, porId, midia, carregarSacola, salvarSacola, totalSacola, qtdSacola, pesoSacola, linkWhats, htmlItens, editarItem, ETAPAS, NOMES, nomeStatus, linkAcompanhar, dataHora, demo };
 })();
