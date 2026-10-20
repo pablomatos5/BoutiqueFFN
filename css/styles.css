@@ -79,6 +79,8 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
 .header { position: sticky; top: 0; z-index: 40; background: rgba(14, 22, 19, .96); backdrop-filter: blur(8px); color: var(--creme); border-bottom: 1px solid rgba(201, 161, 74, .25); }
 .header__inner { display: flex; align-items: center; justify-content: space-between; height: 76px; gap: 1rem; }
 
+.marca { display: inline-flex; align-items: center; gap: .7rem; text-decoration: none; }
+.marca__panda { width: 46px; height: 46px; }
 .logo { display: inline-flex; flex-direction: column; align-items: center; text-decoration: none; line-height: 1; }
 .logo__top, .logo__bottom { font-family: var(--fonte-titulo); color: var(--ouro-claro); letter-spacing: .28em; font-size: .6rem; }
 .logo__bottom { letter-spacing: .2em; font-size: .5rem; border-top: 1px solid var(--ouro); padding-top: 3px; margin-top: 2px; }
@@ -99,7 +101,9 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
 .menu-btn { display: none; }
 
 /* Hero */
-.hero { background: radial-gradient(1200px 500px at 80% 0%, var(--noite-3), var(--noite) 60%); color: var(--creme); overflow: hidden; }
+.hero { position: relative; background: radial-gradient(1200px 500px at 80% 0%, var(--noite-3), var(--noite) 60%); color: var(--creme); overflow: hidden; }
+.hero__inner { position: relative; }
+.hero__marca-dagua { position: absolute; left: -150px; bottom: -190px; width: 600px; opacity: .06; pointer-events: none; }
 .hero__inner { display: grid; grid-template-columns: 1.1fr .9fr; gap: 3rem; align-items: center; padding-block: 4.5rem; }
 .hero h1 { font-family: var(--fonte-titulo); font-size: clamp(2.1rem, 5vw, 3.6rem); font-weight: 700; }
 .hero h1 em { font-style: normal; display: block; background: var(--gradiente-ouro); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -171,8 +175,12 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
 .vazio { text-align: center; color: var(--cinza); padding: 2rem 1rem; }
 
 /* Lupo */
-.lupo-banner { background: var(--noite); color: var(--creme); padding-block: 3.5rem; border-block: 1px solid rgba(201, 161, 74, .3); }
-.lupo-banner__inner { display: flex; align-items: center; justify-content: space-between; gap: 2rem; }
+/* Lupo: faixa no estilo da fachada, com o panda grande à direita */
+.lupo-banner { position: relative; overflow: hidden; background: linear-gradient(90deg, var(--noite) 55%, var(--noite-3)); color: var(--creme); padding-block: 3.5rem; border-block: 1px solid rgba(201, 161, 74, .3); }
+.lupo-banner__inner { position: relative; z-index: 1; }
+.lupo-banner__texto { max-width: 560px; display: grid; gap: .9rem; justify-items: start; }
+.lupo-banner__texto h2 { margin: 0; }
+.lupo-banner__panda { position: absolute; right: -40px; top: 50%; transform: translateY(-50%) rotate(-6deg); width: 380px; filter: drop-shadow(0 20px 40px rgba(0, 0, 0, .5)); }
 .lupo-banner p { color: #cfcabe; max-width: 38rem; margin: 0; }
 .lupo-banner .eyebrow { color: var(--ouro); }
 
@@ -196,6 +204,7 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
 .footer { background: #080d0b; color: #a8b0ab; padding-block: 2.5rem 6rem; font-size: .85rem; }
 .footer__inner { display: grid; justify-items: center; text-align: center; gap: .5rem; }
 .footer a { color: var(--ouro-claro); }
+.footer__panda { width: 72px; height: auto; opacity: .9; }
 .footer__copy { font-size: .75rem; opacity: .7; }
 
 .whats-float { position: fixed; right: 18px; bottom: 18px; z-index: 30; width: 58px; height: 58px; border-radius: 50%; background: var(--whats); display: grid; place-items: center; box-shadow: 0 10px 25px rgba(0, 0, 0, .25); }
@@ -293,7 +302,9 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
   .hero__panda { width: 84px; left: -18px; }
   .categorias__grid { grid-template-columns: repeat(2, 1fr); }
   .passos { grid-template-columns: repeat(2, 1fr); }
-  .lupo-banner__inner { flex-direction: column; align-items: flex-start; }
+  .lupo-banner { padding-bottom: 12rem; }
+  .lupo-banner__panda { width: 220px; right: 50%; top: auto; bottom: -50px; transform: translateX(50%) rotate(-4deg); }
+  .hero__marca-dagua { width: 420px; left: auto; right: -140px; bottom: auto; top: -60px; }
   .visite__inner { grid-template-columns: 1fr; gap: 2.5rem; }
   .mapa iframe { height: 300px; }
   .mapa__panda { width: 72px; left: -8px; }
