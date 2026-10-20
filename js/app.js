@@ -237,6 +237,12 @@
     document.dispatchEvent(new CustomEvent("ffn:adicionado", { detail: { origem, imagem: escolha.produto.imagem, nome: escolha.produto.nome } }));
   });
 
+  /* ---------- Cupom no link (?cupom=...) vale até o checkout ---------- */
+  const cupomNoLink = new URLSearchParams(location.search).get("cupom");
+  if (cupomNoLink) {
+    try { sessionStorage.setItem("ffn-cupom", cupomNoLink); } catch { /* ok */ }
+  }
+
   /* ---------- Campanha (js/loja.js) ---------- */
   const campanha = LOJA.campanha || {};
   if (campanha.aviso) {

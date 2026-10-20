@@ -996,3 +996,30 @@ html { -webkit-tap-highlight-color: transparent; }
 }
 .topbar__campanha { font-weight: 800; padding: .1rem .6rem; border-radius: 999px; background: var(--noite); color: var(--ouro-claro); }
 .contagem { justify-self: start; display: inline-block; margin: 0 0 1rem; padding: .45rem .9rem; border-radius: 999px; background: var(--gradiente-ouro); color: var(--noite); font-weight: 800; font-size: .78rem; letter-spacing: .04em; font-variant-numeric: tabular-nums; }
+
+/* ---------- Cupom ---------- */
+.cupom { border-top: 1px solid rgba(255, 255, 255, .08); padding-top: .7rem; }
+.cupom summary { cursor: pointer; font-size: .85rem; font-weight: 700; color: var(--ouro-claro); list-style: none; padding: .3rem 0; }
+.cupom summary::-webkit-details-marker { display: none; }
+.cupom__linha { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .5rem; margin-top: .6rem; }
+.resumo-pedido .cupom input { background: rgba(255, 255, 255, .06); border-color: rgba(201, 161, 74, .4); color: var(--creme); text-transform: uppercase; letter-spacing: .08em; }
+.cupom .btn--ghost { padding: .7rem 1rem; }
+.cupom__status { margin: .5rem 0 0; font-size: .8rem; color: #a8b0ab; }
+.cupom__status:empty { display: none; }
+.cupom__status.is-ok { color: #8fd6a8; font-weight: 700; }
+.cupom__status.is-erro { color: #ffb4ab; }
+.resumo__desconto { color: #8fd6a8; font-weight: 700; }
+
+/* ---------- Painel: seções e cupons ---------- */
+.painel__secoes { display: inline-flex; padding: 4px; border-radius: 999px; background: #e7e2d6; gap: 2px; }
+.painel__secoes button { border: 0; border-radius: 999px; padding: .6rem 1rem; min-height: 42px; background: none; font-weight: 700; font-size: .85rem; color: var(--cinza); }
+.painel__secoes button[aria-selected="true"] { background: var(--noite); color: var(--ouro-claro); }
+#secaoPedidos, #secaoCupons { display: grid; gap: .9rem; }
+#secaoPedidos[hidden], #secaoCupons[hidden] { display: none; }
+.form-cupom h2 { margin: 0; font-family: var(--fonte-titulo); font-size: 1.1rem; }
+.form-cupom__valor { display: grid; grid-template-columns: minmax(0, 1fr) 84px; gap: .5rem; }
+.form-cupom .aviso:empty { display: none; }
+.form-cupom code { font-size: .72rem; word-break: break-all; }
+.cupom-card__codigo { font-family: ui-monospace, monospace; letter-spacing: .06em; }
+.cupom-card .pedido-card__acoes .btn { flex: 1 1 90px; }
+.btn--perigo { border-color: #b3261e !important; color: #b3261e !important; }

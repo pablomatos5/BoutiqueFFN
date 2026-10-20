@@ -10,6 +10,7 @@ import crypto from "node:crypto";
 import { responder } from "./frete.js";
 import { abrirBanco } from "./_db.js";
 import { dentroDoLimite } from "./_limite.js";
+import { listarCupons, validarCupom, normalizarCodigo } from "./_cupons.js";
 import { mudarStatus, STATUS_VALIDOS, codigoRastreioValido, rastrear, aplicarRastreio, ETAPAS } from "./_pedidos.js";
 
 const VALIDADE_H = 12;
@@ -59,6 +60,36 @@ export default async function handler(req, res, env = process.env) {
   if (!banco) return responder(res, 503, { erro: "Banco de pedidos não configurado" });
 
   if (acao === "pedidos") return responder(res, 200, { pedidos: await banco.listar(300), etapas: ETAPAS });
+
+  if (acao === "cupons") return responder(res, 200, { cupons: await listarCupons(banco) });
+
+  if (acao === "salvarCupom" && req.method === "POST") {
+    const c = await lerCorpo(req);
+    const erro = validarCupom(c);
+    if (erro) return responder(res, 400, { erro });
+    const lista = await listarCupons(banco);
+    const codigo = normalizarCodigo(c.codigo);
+    const existente = lista.find((x) => x.codigo === codigo);
+    const novo = {
+      codigo,
+      tipo: c.tipo,
+      valor: Math.round(Number(c.valor) * 100) / 100,
+      ate: /^\d{4}-\d{2}-\d{2}$/.test(c.ate || "") ? c.ate : "",
+      limite: Math.max(0, Math.trunc(Number(c.limite) || 0)),
+      minimo: Math.max(0, Number(c.minimo) || 0),
+      ativo: c.ativo !== false,
+      usos: existente?.usos || 0,
+      criadoEm: existente?.criadoEm || new Date().toISOString(),
+    };
+    await banco.gravarDado("cupons", [novo, ...lista.filter((x) => x.codigo !== codigo)]);
+    return responder(res, 200, { cupom: novo });
+  }
+
+  if (acao === "apagarCupom" && req.method === "POST") {
+    const { codigo } = await lerCorpo(req);
+    await banco.gravarDado("cupons", (await listarCupons(banco)).filter((x) => x.codigo !== normalizarCodigo(codigo)));
+    return responder(res, 200, { ok: true });
+  }
 
   if (acao === "rastreio") {
     const pedido = await banco.obter(new URL(req.url, "http://localhost").searchParams.get("id"));

@@ -14,8 +14,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
-  <script src="js/loja.js?v=20261021-8"></script>
-  <link rel="stylesheet" href="css/styles.css?v=20261021-8">
+  <script src="js/loja.js?v=20261021-9"></script>
+  <link rel="stylesheet" href="css/styles.css?v=20261021-9">
 </head>
 <body class="pagina-finalizar">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -194,7 +194,16 @@
           <div class="resumo">
             <div><span>Subtotal</span><span id="sacolaSubtotal">R$ 0,00</span></div>
             <div><span>Frete</span><span id="sacolaFrete">Grátis (retirada)</span></div>
+            <div class="resumo__desconto" id="linhaDesconto" hidden><span id="rotuloDesconto">Desconto</span><span id="sacolaDesconto"></span></div>
           </div>
+          <details class="cupom" id="caixaCupom">
+            <summary>🎟️ Tem cupom de desconto?</summary>
+            <div class="cupom__linha">
+              <label><span class="sr-only">Código do cupom</span><input name="cupom" id="campoCupom" autocapitalize="characters" autocomplete="off" placeholder="CÓDIGO" maxlength="20" enterkeyhint="done"></label>
+              <button type="button" class="btn btn--ghost" id="aplicarCupom">Aplicar</button>
+            </div>
+            <p class="cupom__status" id="cupomStatus" aria-live="polite"></p>
+          </details>
           <div class="total"><span>Total</span><strong id="sacolaTotal">R$ 0,00</strong></div>
           <p class="aviso" id="checkoutAviso" role="alert"></p>
           <button class="btn btn--gold btn--block btn--pagar" id="pagar" type="submit" value="pagar">Gerar Pix</button>
@@ -221,10 +230,10 @@
     <div><small>Total</small><strong id="barraTotal">R$ 0,00</strong></div>
     <button class="btn btn--gold" type="submit" form="checkout" value="pagar" id="barraPagarBtn">Gerar Pix</button>
   </div>
-  <script src="js/produtos.js?v=20261021-8"></script>
-  <script src="js/comum.js?v=20261021-8"></script>
-  <script src="js/pagamento.js?v=20261021-8"></script>
-  <script src="js/finalizar.js?v=20261021-8"></script>
-  <script src="js/efeitos.js?v=20261021-8"></script>
+  <script src="js/produtos.js?v=20261021-9"></script>
+  <script src="js/comum.js?v=20261021-9"></script>
+  <script src="js/pagamento.js?v=20261021-9"></script>
+  <script src="js/finalizar.js?v=20261021-9"></script>
+  <script src="js/efeitos.js?v=20261021-9"></script>
 </body>
 </html>

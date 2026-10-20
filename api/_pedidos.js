@@ -25,7 +25,7 @@ export const nomeStatus = (p, s = p.status) => (s === "entregue" && NOME_ENTREGU
 export const novaChave = () => crypto.randomBytes(8).toString("hex");
 const igual = (a, b) => a.length === b.length && crypto.timingSafeEqual(Buffer.from(a), Buffer.from(b));
 
-export function criarPedido({ id, cliente, entrega, itens, subtotal, frete, total, pagamento, obs }) {
+export function criarPedido({ id, cliente, entrega, itens, subtotal, desconto = 0, cupom = "", frete, total, pagamento, obs }) {
   const agora = new Date().toISOString();
   return {
     id,
@@ -37,6 +37,8 @@ export function criarPedido({ id, cliente, entrega, itens, subtotal, frete, tota
     entrega, // { tipo: "retirada"|"local"|"correios", descricao, endereco, cep, cidade, uf }
     itens, // [{ nome, cor, tamanho, qtd, preco }]
     subtotal,
+    desconto,
+    cupom,
     frete,
     total,
     obs: obs || "",

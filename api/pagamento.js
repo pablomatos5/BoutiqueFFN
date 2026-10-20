@@ -28,6 +28,7 @@ import { abrirBanco } from "./_db.js";
 import { dentroDoLimite } from "./_limite.js";
 import { criarPedido, aplicarPagamento } from "./_pedidos.js";
 import { avisarLoja } from "./_avisos.js";
+import { aplicarCupom, registrarUso } from "./_cupons.js";
 
 const PESO_PADRAO = 300;
 const API = "https://api.mercadopago.com";
@@ -122,7 +123,10 @@ export async function atualizarPedido(mp, env = process.env) {
     const antes = pedido?.status;
     if (pedido && aplicarPagamento(pedido, mp)) {
       await banco.salvar(pedido);
-      if (antes === "aguardando" && pedido.status === "aprovado") await avisarLoja(pedido, env);
+      if (antes === "aguardando" && pedido.status === "aprovado") {
+        if (pedido.cupom) await registrarUso(banco, pedido.cupom);
+        await avisarLoja(pedido, env);
+      }
     }
     return pedido;
   } catch (e) {
@@ -192,7 +196,17 @@ export default async function handler(req, res, env = process.env) {
     return responder(res, e.status || 500, { erro: e.message });
   }
 
-  const total = centavos(itens.reduce((s, i) => s + i.unit_price * i.quantity, 0) + frete.valor);
+  // cupom: conferido aqui, nunca confiando no desconto que vem do navegador
+  const subtotalItens = centavos(itens.reduce((s, i) => s + i.unit_price * i.quantity, 0));
+  let desconto = 0;
+  let cupomUsado = "";
+  if (dados.cupom) {
+    const r = await aplicarCupom(abrirBanco(env), dados.cupom, subtotalItens);
+    if (r.erro) return responder(res, 400, { erro: `Cupom: ${r.erro}` });
+    desconto = r.desconto;
+    cupomUsado = r.cupom.codigo;
+  }
+  const total = centavos(subtotalItens - desconto + frete.valor);
   const pedido = String(dados.pedido || "").replace(/[^A-Za-z0-9-]/g, "").slice(0, 40) || `FFN-${Date.now().toString(36).toUpperCase()}`;
   const e = dados.endereco || {};
   const [primeiro, ...resto] = nome.split(/\s+/);
@@ -222,6 +236,8 @@ export default async function handler(req, res, env = process.env) {
       observacoes: String(dados.obs || "").slice(0, 300),
       entrega: frete.descricao,
       frete: frete.valor,
+      cupom: cupomUsado,
+      desconto,
       endereco: dados.entrega === "entrega" ? [e.rua, e.numero, e.complemento, e.bairro, dados.cep].filter(Boolean).join(", ") : "",
     },
   };
@@ -278,7 +294,9 @@ export default async function handler(req, res, env = process.env) {
           uf: frete.local?.uf || "PA",
         },
         itens: itensPedido,
-        subtotal: centavos(total - frete.valor),
+        subtotal: subtotalItens,
+        desconto,
+        cupom: cupomUsado,
         frete: frete.valor,
         total,
         obs: String(dados.obs || "").slice(0, 300),
@@ -288,7 +306,10 @@ export default async function handler(req, res, env = process.env) {
       aplicarPagamento(novo, resposta);
       await banco.salvar(novo);
       chave = novo.chave;
-      if (novo.status === "aprovado") await avisarLoja(novo, env, site);
+      if (novo.status === "aprovado") {
+        if (cupomUsado) await registrarUso(banco, cupomUsado);
+        await avisarLoja(novo, env, site);
+      }
     } catch (err) {
       console.error("[pedido] não foi possível gravar", err.message);
     }

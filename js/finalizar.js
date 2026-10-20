@@ -10,7 +10,8 @@
   let cotacao = null; // { cep, local, gratis? , opcoes? }
 
   const ehCameta = (local) => local.uf === "PA" && semAcento(local.localidade) === "cameta";
-  const totalPedido = () => FFN.totalSacola(sacola) + (frete.valor || 0);
+  let cupom = null; // { codigo, desconto, descricao }
+  const totalPedido = () => Math.max(0, FFN.totalSacola(sacola) - (cupom?.desconto || 0)) + (frete.valor || 0);
   let ultimoPedido = null; // dados do pedido enviado para pagamento (para a mensagem de confirmação)
 
   function cpfValido(cpf) {
@@ -56,7 +57,12 @@
       combinar: "A combinar",
     }[frete.tipo] || "Informe o CEP";
     $("#sacolaFrete").textContent = rotulo;
-    const total = brl(sub + (frete.valor || 0));
+    $("#linhaDesconto").hidden = !cupom;
+    if (cupom) {
+      $("#rotuloDesconto").textContent = `Cupom ${cupom.codigo}`;
+      $("#sacolaDesconto").textContent = `− ${brl(cupom.desconto)}`;
+    }
+    const total = brl(totalPedido());
     $("#sacolaTotal").textContent = total;
     $("#barraTotal").textContent = frete.tipo === "combinar" ? `${total} + frete` : total;
     $("#precoEntrega").textContent = { gratis: "Grátis", correios: brl(frete.valor || 0), combinar: "A combinar" }[frete.tipo] || "Calcular";
@@ -198,8 +204,46 @@
     form.telefone.value = v.length > 6 ? `(${v.slice(0, 2)}) ${v.slice(2, v.length - 4)}-${v.slice(-4)}` : v.length > 2 ? `(${v.slice(0, 2)}) ${v.slice(2)}` : v;
   });
 
+  /* ---------- Cupom ---------- */
+  // sem servidor (prévia): cupons de demonstração
+  const CUPONS_DEMO = { FFN10: { tipo: "porcentagem", valor: 10 } };
+  if (LOJA.campanha?.cupom) CUPONS_DEMO[LOJA.campanha.cupom.toUpperCase()] = { tipo: "porcentagem", valor: 10 };
+
+  async function conferirCupom(codigo, { silencioso = false } = {}) {
+    const status = (t, classe = "") => { $("#cupomStatus").textContent = t; $("#cupomStatus").className = `cupom__status ${classe}`; };
+    codigo = String(codigo || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+    if (!codigo) { cupom = null; status(""); atualizarTotais(); return; }
+    const sub = FFN.totalSacola(sacola);
+    status("Conferindo o cupom…");
+    try {
+      let r;
+      try {
+        const resp = await fetch(`api/cupom?codigo=${encodeURIComponent(codigo)}&subtotal=${sub.toFixed(2)}`, { cache: "no-store" });
+        if (resp.status === 503 || (resp.status === 404 && !resp.headers.get("content-type")?.includes("json"))) throw new TypeError("sem servidor");
+        r = await resp.json();
+        if (!resp.ok) throw new Error(r.erro);
+      } catch (e) {
+        if (!(e instanceof TypeError)) throw e;
+        const c = CUPONS_DEMO[codigo];
+        if (!c) throw new Error("Cupom inválido (demonstração: use FFN10)");
+        r = { codigo, desconto: Math.round(sub * c.valor) / 100, descricao: `${c.valor}% de desconto (demonstração)` };
+      }
+      cupom = r;
+      status(`✓ ${r.descricao} aplicado`, "is-ok");
+      if (!silencioso) document.dispatchEvent(new CustomEvent("ffn:festa", { detail: { alvo: $("#aplicarCupom"), quantidade: 8 } }));
+    } catch (e) {
+      cupom = null;
+      status(e.message || "Não foi possível conferir agora", "is-erro");
+    }
+    atualizarTotais();
+  }
+  $("#aplicarCupom").addEventListener("click", () => conferirCupom($("#campoCupom").value));
+  $("#campoCupom").addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); conferirCupom($("#campoCupom").value); } });
+  $("#campoCupom").addEventListener("input", () => { $("#campoCupom").value = $("#campoCupom").value.toUpperCase(); });
+
   // A sacola mudou: o peso mudou, então a cotação dos Correios precisa ser refeita
   function sacolaMudou() {
+    if (cupom) conferirCupom(cupom.codigo, { silencioso: true }); // o desconto depende do subtotal
     if (cotacao && !cotacao.gratis && cotacao.opcoes?.length) {
       cotacao = null;
       $("#freteOpcoes").innerHTML = "";
@@ -240,6 +284,7 @@
       email: form.email.value.trim(),
       cpf: form.cpf.value.replace(/\D/g, ""),
       obs: form.obs.value.trim(),
+      cupom: cupom?.codigo || "",
       entrega: entrega ? "entrega" : "retirada",
       cep: form.cep.value.replace(/\D/g, ""),
       servico: frete.tipo === "correios" ? frete.codigo : undefined,
@@ -274,8 +319,9 @@
       ...linhas,
       ``,
       `Subtotal: ${brl(sub)}`,
+      cupom ? `Cupom ${cupom.codigo}: − ${brl(cupom.desconto)}` : "",
       freteTxt,
-      `*Total: ${brl(sub + (frete.valor || 0))}*${frete.tipo === "combinar" ? " + frete" : ""}`,
+      `*Total: ${brl(totalPedido())}*${frete.tipo === "combinar" ? " + frete" : ""}`,
       ``,
       `Nome: ${d.nome}`,
       d.telefone ? `WhatsApp: ${d.telefone}` : "",
@@ -326,7 +372,7 @@
         cep: d.cep, cidade: cotacao?.local?.localidade || "Cametá", uf: cotacao?.local?.uf || "PA",
       },
       itens: sacola.map((i) => ({ nome: porId(i.id).nome, cor: i.cor, tamanho: i.tamanho, qtd: i.qtd, preco: porId(i.id).preco })),
-      subtotal: FFN.totalSacola(sacola), frete: frete.valor || 0, total: totalPedido(), obs: d.obs,
+      subtotal: FFN.totalSacola(sacola), desconto: cupom?.desconto || 0, cupom: cupom?.codigo || "", frete: frete.valor || 0, total: totalPedido(), obs: d.obs,
       pagamento: { metodo: r.metodo, status: "approved" },
       rastreio: "",
       historico: [{ status: "aguardando", em: agora }, { status: "aprovado", em: agora }],
@@ -371,5 +417,19 @@
 
   PagamentoFFN.iniciar({ obterTotal: totalPedido, aoConcluir: concluido, aoMudarMetodo: atualizarBotoes });
   renderSacola();
+  // cupom pelo link (?cupom=ROSA15) ou da campanha ativa
+  const cupomLink = new URLSearchParams(location.search).get("cupom");
+  if (cupomLink) {
+    try { sessionStorage.setItem("ffn-cupom", cupomLink); } catch { /* ok */ }
+  }
+  let cupomGuardado = cupomLink;
+  try { cupomGuardado ||= sessionStorage.getItem("ffn-cupom"); } catch { /* ok */ }
+  if (cupomGuardado && sacola.length) {
+    $("#caixaCupom").open = true;
+    $("#campoCupom").value = cupomGuardado.toUpperCase();
+    conferirCupom(cupomGuardado, { silencioso: true });
+  } else if (LOJA.campanha?.cupom) {
+    $("#cupomStatus").textContent = `Dica: use o cupom ${LOJA.campanha.cupom}`;
+  }
   addEventListener("pageshow", (e) => { if (e.persisted) { sacola = FFN.carregarSacola(); renderSacola(); } });
 })();

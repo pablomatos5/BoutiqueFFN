@@ -170,6 +170,7 @@
         <ul class="itens-resumo">${p.itens.map((i) => `<li><span>${i.qtd}x ${esc(i.nome)}</span><small>${esc(i.cor)} · Tam. ${esc(i.tamanho)} · ${brl(i.preco * i.qtd)}</small></li>`).join("")}</ul>
         <dl class="pedido-card__dados">
           <div><dt>Frete</dt><dd>${p.frete ? brl(p.frete) : "Grátis"}</dd></div>
+          ${p.cupom ? `<div><dt>Cupom</dt><dd>${esc(p.cupom)} · − ${brl(p.desconto || 0)}</dd></div>` : ""}
           <div><dt>Pagamento</dt><dd>${esc(p.pagamento?.metodo || "")}${p.pagamento?.parcelas > 1 ? ` em ${p.pagamento.parcelas}x` : ""}</dd></div>
           <div><dt>WhatsApp</dt><dd>${p.cliente.telefone ? `<a href="https://wa.me/55${p.cliente.telefone.replace(/\D/g, "")}" target="_blank" rel="noopener">${esc(p.cliente.telefone)}</a>` : "—"}</dd></div>
           <div><dt>E-mail</dt><dd>${esc(p.cliente.email)}</dd></div>
@@ -297,10 +298,121 @@
   });
   let espera;
   $("#buscaPedido").addEventListener("input", () => { clearTimeout(espera); espera = setTimeout(render, 120); });
-  $("#recarregar").addEventListener("click", carregar);
+  $("#recarregar").addEventListener("click", () => (secao === "cupons" ? carregarCupons() : carregar()));
 
   // busca pedidos novos a cada minuto enquanto o painel está aberto
   setInterval(() => { if (!$("#conteudo").hidden && !document.hidden) carregar(); }, 60_000);
+
+  /* ---------- Seções: pedidos e cupons ---------- */
+  let secao = "pedidos";
+  let cupons = [];
+  document.querySelector(".painel__secoes").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-secao]");
+    if (!b) return;
+    secao = b.dataset.secao;
+    document.querySelectorAll(".painel__secoes [data-secao]").forEach((x) => x.setAttribute("aria-selected", String(x === b)));
+    $("#secaoPedidos").hidden = secao !== "pedidos";
+    $("#secaoCupons").hidden = secao !== "cupons";
+    if (secao === "cupons") carregarCupons();
+  });
+
+  /* ---------- Cupons ---------- */
+  const CHAVE_CUPONS_DEMO = "ffn-cupons-demo";
+  const cuponsDemo = {
+    ler() { try { return JSON.parse(localStorage.getItem(CHAVE_CUPONS_DEMO)) || [{ codigo: "FFN10", tipo: "porcentagem", valor: 10, ate: "", limite: 0, minimo: 0, ativo: true, usos: 3 }]; } catch { return []; } },
+    gravar(l) { try { localStorage.setItem(CHAVE_CUPONS_DEMO, JSON.stringify(l)); } catch { /* ok */ } },
+  };
+
+  async function carregarCupons() {
+    try {
+      cupons = demo ? cuponsDemo.ler() : (await api("cupons")).cupons;
+      renderCupons();
+    } catch (e) {
+      mostrarToast("Não foi possível carregar os cupons", e.message);
+    }
+  }
+
+  function renderCupons() {
+    $("#exemploLinkCupom").textContent = new URL(`index.html?cupom=${cupons[0]?.codigo || "CODIGO"}`, location.href).href;
+    $("#semCupons").hidden = cupons.length > 0;
+    $("#listaCupons").innerHTML = cupons
+      .map((c) => {
+        const expirado = c.ate && new Date(`${c.ate}T23:59:59-03:00`) < new Date();
+        const esgotado = c.limite && c.usos >= c.limite;
+        const situacao = !c.ativo ? ["Pausado", "cinza"] : expirado ? ["Expirado", "vermelho"] : esgotado ? ["Esgotado", "vermelho"] : ["Ativo", "verde"];
+        return `<li class="pedido-card cupom-card" data-codigo="${esc(c.codigo)}">
+          <div class="pedido-card__topo">
+            <div><strong class="cupom-card__codigo">${esc(c.codigo)}</strong>
+              <small>${c.tipo === "valor" ? `${brl(c.valor)} de desconto` : `${c.valor}% de desconto`}${c.minimo ? ` · mínimo ${brl(c.minimo)}` : ""}${c.ate ? ` · até ${c.ate.split("-").reverse().join("/")}` : ""}</small></div>
+            <div class="pedido-card__lado"><span class="pill pill--${situacao[1]}">${situacao[0]}</span><small>${c.usos || 0}${c.limite ? `/${c.limite}` : ""} usos</small></div>
+          </div>
+          <div class="pedido-card__acoes">
+            <button type="button" class="btn btn--ghost-escuro" data-cupom="alternar">${c.ativo ? "Pausar" : "Ativar"}</button>
+            <button type="button" class="btn btn--ghost-escuro" data-cupom="link">Copiar link</button>
+            <button type="button" class="btn btn--ghost-escuro btn--perigo" data-cupom="apagar">Apagar</button>
+          </div>
+        </li>`;
+      })
+      .join("");
+  }
+
+  async function salvarCupom(c) {
+    if (demo) {
+      const lista = cuponsDemo.ler().filter((x) => x.codigo !== c.codigo);
+      const antigo = cuponsDemo.ler().find((x) => x.codigo === c.codigo);
+      cuponsDemo.gravar([{ ...c, usos: antigo?.usos || 0 }, ...lista]);
+      return;
+    }
+    await api("salvarCupom", { metodo: "POST", corpo: c });
+  }
+
+  $("#formCupom").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const f = e.target;
+    const c = {
+      codigo: f.codigo.value.trim().toUpperCase().replace(/[^A-Z0-9]/g, ""),
+      tipo: f.tipo.value,
+      valor: Number(f.valor.value),
+      ate: f.ate.value,
+      limite: Number(f.limite.value) || 0,
+      minimo: Number(f.minimo.value) || 0,
+      ativo: true,
+    };
+    $("#cupomAviso").textContent = "";
+    if (c.codigo.length < 3) return ($("#cupomAviso").textContent = "O código precisa ter pelo menos 3 letras ou números.");
+    if (!(c.valor > 0) || (c.tipo === "porcentagem" && c.valor > 90)) return ($("#cupomAviso").textContent = "Desconto inválido (porcentagem até 90%).");
+    try {
+      await salvarCupom(c);
+      f.reset();
+      mostrarToast("Cupom salvo!", c.codigo);
+      carregarCupons();
+    } catch (err) {
+      $("#cupomAviso").textContent = err.message;
+    }
+  });
+  $("#formCupom").codigo.addEventListener("input", (e) => { e.target.value = e.target.value.toUpperCase(); });
+
+  $("#listaCupons").addEventListener("click", async (e) => {
+    const b = e.target.closest("[data-cupom]");
+    if (!b) return;
+    const codigo = b.closest(".cupom-card").dataset.codigo;
+    const c = cupons.find((x) => x.codigo === codigo);
+    try {
+      if (b.dataset.cupom === "alternar") await salvarCupom({ ...c, ativo: !c.ativo });
+      if (b.dataset.cupom === "link") {
+        try { await navigator.clipboard.writeText(new URL(`index.html?cupom=${codigo}`, location.href).href); } catch { /* ok */ }
+        return mostrarToast("Link copiado!", "Cole no Instagram ou no WhatsApp");
+      }
+      if (b.dataset.cupom === "apagar") {
+        if (!confirm(`Apagar o cupom ${codigo}?`)) return;
+        if (demo) cuponsDemo.gravar(cuponsDemo.ler().filter((x) => x.codigo !== codigo));
+        else await api("apagarCupom", { metodo: "POST", corpo: { codigo } });
+      }
+      carregarCupons();
+    } catch (err) {
+      mostrarToast("Não foi possível salvar", err.message);
+    }
+  });
 
   /* ---------- Aviso ---------- */
   let timer;

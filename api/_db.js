@@ -41,6 +41,13 @@ function redis(url, token) {
       const [vals] = await chamar([["MGET", ...ids.map((id) => `${PREFIXO}pedido:${id}`)]]);
       return vals.filter(Boolean).map((v) => JSON.parse(v));
     },
+    async lerDado(chave) {
+      const [v] = await chamar([["GET", `${PREFIXO}dado:${chave}`]]);
+      return v ? JSON.parse(v) : null;
+    },
+    async gravarDado(chave, valor) {
+      await chamar([["SET", `${PREFIXO}dado:${chave}`, JSON.stringify(valor)]]);
+    },
     async lerCache(chave) {
       const [v] = await chamar([["GET", `${PREFIXO}cache:${chave}`]]);
       return v ? JSON.parse(v) : null;
@@ -65,6 +72,8 @@ function arquivo(caminho) {
     async listar(limite = 200) {
       return Object.values(ler().pedidos).sort((a, b) => Date.parse(b.criadoEm) - Date.parse(a.criadoEm)).slice(0, limite);
     },
+    async lerDado(chave) { return ler().dados?.[chave] ?? null; },
+    async gravarDado(chave, valor) { const d = ler(); d.dados = { ...(d.dados || {}), [chave]: valor }; gravar(d); },
     async lerCache(chave) {
       const c = ler().cache[chave];
       return c && c.expira > Date.now() ? c.valor : null;

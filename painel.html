@@ -14,8 +14,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
-  <script src="js/loja.js?v=20261021-8"></script>
-  <link rel="stylesheet" href="css/styles.css?v=20261021-8">
+  <script src="js/loja.js?v=20261021-9"></script>
+  <link rel="stylesheet" href="css/styles.css?v=20261021-9">
 </head>
 <body class="pagina-finalizar pagina-painel">
   <header class="header header--finalizar">
@@ -46,9 +46,13 @@
 
       <section class="painel__conteudo" id="conteudo" hidden>
         <div class="painel__topo">
-          <h1 class="finalizar__titulo">Pedidos</h1>
+          <div class="painel__secoes" role="tablist" aria-label="Seções do painel">
+            <button type="button" role="tab" aria-selected="true" data-secao="pedidos">📦 Pedidos</button>
+            <button type="button" role="tab" aria-selected="false" data-secao="cupons">🎟️ Cupons</button>
+          </div>
           <button type="button" class="btn btn--ghost-escuro" id="recarregar">Atualizar</button>
         </div>
+        <div id="secaoPedidos">
 
         <div class="abas-cat painel__abas" id="abasStatus" role="tablist" aria-label="Filtrar pedidos">
           <button type="button" role="tab" class="aba-cat" data-grupo="fazer" aria-selected="true">A fazer<span>0</span></button>
@@ -65,6 +69,30 @@
 
         <ul class="lista-pedidos" id="listaPedidos"></ul>
         <p class="vazio" id="semPedidos" hidden>Nenhum pedido aqui. 🐼🎋</p>
+        </div>
+
+        <div id="secaoCupons" hidden>
+          <form class="etapa form-cupom" id="formCupom" novalidate>
+            <h2>Novo cupom</h2>
+            <div class="campos">
+              <label>Código<input name="codigo" autocapitalize="characters" autocomplete="off" placeholder="EX.: ANIVERSARIO40" maxlength="20" required></label>
+              <label>Desconto
+                <span class="form-cupom__valor">
+                  <input name="valor" type="number" inputmode="decimal" min="1" step="0.01" placeholder="10" required>
+                  <select name="tipo"><option value="porcentagem">%</option><option value="valor">R$</option></select>
+                </span>
+              </label>
+              <label>Válido até (opcional)<input name="ate" type="date"></label>
+              <label>Limite de usos (opcional)<input name="limite" type="number" inputmode="numeric" min="0" placeholder="Sem limite"></label>
+              <label>Compra mínima em R$ (opcional)<input name="minimo" type="number" inputmode="decimal" min="0" step="0.01" placeholder="Sem mínimo"></label>
+            </div>
+            <p class="aviso" id="cupomAviso" role="alert"></p>
+            <button class="btn btn--gold btn--block" type="submit">Salvar cupom</button>
+            <p class="campos__nota">Para divulgar, use o link da loja com o cupom: o desconto já vem aplicado no checkout. Ex.: <code id="exemploLinkCupom"></code></p>
+          </form>
+          <ul class="lista-pedidos" id="listaCupons"></ul>
+          <p class="vazio" id="semCupons" hidden>Nenhum cupom ainda.</p>
+        </div>
       </section>
     </div>
   </main>
@@ -73,8 +101,8 @@
     <img src="assets/img/panda.webp" alt="" width="44" height="44">
     <div><strong id="toastTitulo">Salvo!</strong><span id="toastNome"></span></div>
   </div>
-  <script src="js/produtos.js?v=20261021-8"></script>
-  <script src="js/comum.js?v=20261021-8"></script>
-  <script src="js/painel.js?v=20261021-8"></script>
+  <script src="js/produtos.js?v=20261021-9"></script>
+  <script src="js/comum.js?v=20261021-9"></script>
+  <script src="js/painel.js?v=20261021-9"></script>
 </body>
 </html>
