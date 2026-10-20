@@ -27,6 +27,7 @@ import { cotarFrete, normalizarPeso, responder } from "./frete.js";
 import { abrirBanco } from "./_db.js";
 import { dentroDoLimite } from "./_limite.js";
 import { criarPedido, aplicarPagamento } from "./_pedidos.js";
+import { avisarLoja } from "./_avisos.js";
 
 const PESO_PADRAO = 300;
 const API = "https://api.mercadopago.com";
@@ -118,7 +119,11 @@ export async function atualizarPedido(mp, env = process.env) {
   try {
     const banco = abrirBanco(env);
     const pedido = banco && (await banco.obter(mp.external_reference));
-    if (pedido && aplicarPagamento(pedido, mp)) await banco.salvar(pedido);
+    const antes = pedido?.status;
+    if (pedido && aplicarPagamento(pedido, mp)) {
+      await banco.salvar(pedido);
+      if (antes === "aguardando" && pedido.status === "aprovado") await avisarLoja(pedido, env);
+    }
     return pedido;
   } catch (e) {
     console.error("[pedido] não foi possível atualizar", e.message);
@@ -283,6 +288,7 @@ export default async function handler(req, res, env = process.env) {
       aplicarPagamento(novo, resposta);
       await banco.salvar(novo);
       chave = novo.chave;
+      if (novo.status === "aprovado") await avisarLoja(novo, env, site);
     } catch (err) {
       console.error("[pedido] não foi possível gravar", err.message);
     }
