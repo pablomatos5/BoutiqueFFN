@@ -897,3 +897,55 @@ html { -webkit-tap-highlight-color: transparent; }
 .itens-resumo span { font-weight: 700; font-size: .9rem; }
 .itens-resumo small { color: var(--cinza); font-size: .76rem; }
 .confirmacao__dica { margin: 0; font-size: .76rem !important; }
+
+/* ---------- Painel da loja ---------- */
+.painel .container { max-width: 760px; }
+.entrar { max-width: 420px; margin: 1.5rem auto; justify-items: center; text-align: center; }
+.entrar img { border-radius: 50%; }
+.entrar h1 { font-family: var(--fonte-titulo); font-size: 1.5rem; margin: 0; }
+.entrar label { width: 100%; text-align: left; }
+.entrar .aviso:empty { display: none; }
+.sair { border: 0; background: none; cursor: pointer; padding: .6rem 0; }
+.painel__conteudo { display: grid; gap: .9rem; }
+.painel__topo { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.painel__topo .finalizar__titulo { margin: 0; }
+.painel__abas { margin-inline: -16px; }
+@media (min-width: 760px) { .painel__abas { justify-content: flex-start; margin-inline: 0; } }
+
+.lista-pedidos { list-style: none; margin: 0; padding: 0; display: grid; gap: .8rem; }
+.pedido-card { background: #fff; border: 1px solid var(--linha); border-radius: 16px; box-shadow: 0 1px 2px rgba(14, 22, 19, .06); display: grid; gap: .7rem; padding: .3rem .3rem .9rem; }
+.pedido-card__topo { display: flex; justify-content: space-between; gap: .8rem; align-items: flex-start; width: 100%; padding: .8rem .8rem 0; border: 0; background: none; text-align: left; color: inherit; }
+.pedido-card__topo > div { display: grid; gap: .15rem; min-width: 0; }
+.pedido-card__topo strong { font-size: 1rem; }
+.pedido-card__topo small { font-size: .74rem; color: var(--cinza); }
+.pedido-card__lado { justify-items: end; text-align: right; flex: none; }
+.pedido-card__entrega { margin: 0; padding: 0 .8rem; font-size: .82rem; color: var(--cinza); }
+.pedido-card__entrega code { font-size: .78rem; background: var(--papel); padding: .1rem .35rem; border-radius: 6px; color: var(--tinta); }
+.pedido-card__acoes { display: flex; flex-wrap: wrap; gap: .5rem; padding: 0 .8rem; }
+.pedido-card__acoes:empty { display: none; }
+.pedido-card__acoes .btn { flex: 1 1 160px; padding: .8rem 1rem; font-size: .74rem; }
+.pedido-card__rastreio { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: .5rem; padding: 0 .8rem; }
+.pedido-card__rastreio input { text-transform: uppercase; font-family: ui-monospace, monospace; }
+.pedido-card__rastreio .btn { padding: .7rem .9rem; font-size: .7rem; }
+.pedido-card__detalhes { display: grid; gap: .8rem; padding: .3rem .8rem 0; border-top: 1px dashed var(--linha); margin-top: .1rem; padding-top: .9rem; }
+.pedido-card__detalhes[hidden] { display: none; }
+.pedido-card__dados { margin: 0; display: grid; gap: .45rem; }
+.pedido-card__dados div { display: grid; grid-template-columns: 90px 1fr; gap: .6rem; font-size: .84rem; }
+.pedido-card__dados dt { color: var(--cinza); }
+.pedido-card__dados dd { margin: 0; overflow-wrap: anywhere; }
+.pedido-card__dados a { color: #1d7a46; font-weight: 700; }
+.pedido-card__extra { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: .6rem; }
+.pedido-card__corrigir { font-size: .74rem !important; }
+.pedido-card__corrigir select { padding: .55rem 2rem .55rem .7rem !important; font-size: 14px !important; }
+.pedido-card__historico { margin: 0; padding-left: 1.1rem; font-size: .76rem; color: var(--cinza); display: grid; gap: .2rem; }
+
+.pill { display: inline-block; padding: .25rem .6rem; border-radius: 999px; font-size: .7rem; font-weight: 800; white-space: nowrap; }
+.pill--ouro { background: #fbefd0; color: #7a5a12; }
+.pill--azul { background: #e2ecfb; color: #1f4c8f; }
+.pill--verde { background: #dff3e6; color: #1d6b3f; }
+.pill--cinza { background: #ecebe6; color: #4b524e; }
+.pill--vermelho { background: #fbe4e1; color: #a1281e; }
+.finalizar .busca { display: flex; }
+.finalizar .busca input { border: 0; padding: .8rem 0; background: transparent; border-radius: 0; }
+.finalizar .busca input:focus { outline: none; background: transparent; }
+.painel .demo-aviso { margin-bottom: 1rem; }

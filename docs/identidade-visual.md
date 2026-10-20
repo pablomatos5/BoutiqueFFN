@@ -56,4 +56,5 @@ Fonte: perfil [@boutiqueficafeionunca_](https://www.instagram.com/boutiqueficafe
 3. **Fotos de produto** para as peças sem imagem (fundo neutro, mesmo ângulo).
 4. **Credenciais do contrato com os Correios** (usuário, código de acesso da API e cartão de postagem) para ativar o cálculo do frete.
 5. **Public Key e Access Token do Mercado Pago** (Checkout Transparente) e uma chave Pix cadastrada na conta, para ativar o pagamento no site.
-6. Domínio desejado (ex.: `boutiqueffn.com.br`).
+6. **Senha do painel da loja** e criação do banco (Vercel KV) para os pedidos.
+7. Domínio desejado (ex.: `boutiqueffn.com.br`).

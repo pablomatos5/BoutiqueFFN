@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Painel da loja · Boutique FFN</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#0e1613">
+  <meta property="og:title" content="Boutique FFN · Fica Feio Nunca">
+  <meta property="og:description" content="Moda masculina e feminina em Cametá-PA. Escolha online e finalize pelo WhatsApp.">
+  <meta property="og:image" content="assets/img/fachada-loja.jpg">
+  <link rel="icon" href="assets/img/panda.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;1,800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=20261021-6">
+</head>
+<body class="pagina-finalizar pagina-painel">
+  <header class="header header--finalizar">
+    <div class="container header__inner">
+      <a href="index.html" class="marca" aria-label="Boutique FFN, ir para a loja">
+        <img class="marca__panda" src="assets/img/panda.webp" alt="" width="46" height="46">
+        <span class="logo">
+          <span class="logo__top">Boutique</span>
+          <span class="logo__mark">FFN</span>
+          <span class="logo__bottom">Painel da loja</span>
+        </span>
+      </a>
+      <button type="button" class="selo-seguro sair" id="sair" hidden>Sair</button>
+    </div>
+  </header>
+
+  <main class="finalizar painel">
+    <div class="container">
+      <p class="demo-aviso" id="demoAviso" hidden>🧪 <strong>Modo demonstração:</strong> pedidos de exemplo e os feitos neste aparelho. Qualquer senha entra. As mudanças ficam só neste aparelho.</p>
+
+      <form class="etapa entrar" id="formEntrar" novalidate>
+        <img src="assets/img/panda.webp" alt="" width="88" height="88">
+        <h1>Painel da loja</h1>
+        <label>Senha<input name="senha" type="password" autocomplete="current-password" enterkeyhint="go"></label>
+        <p class="aviso" id="entrarAviso" role="alert"></p>
+        <button class="btn btn--gold btn--block" type="submit" id="entrar">Entrar</button>
+      </form>
+
+      <section class="painel__conteudo" id="conteudo" hidden>
+        <div class="painel__topo">
+          <h1 class="finalizar__titulo">Pedidos</h1>
+          <button type="button" class="btn btn--ghost-escuro" id="recarregar">Atualizar</button>
+        </div>
+
+        <div class="abas-cat painel__abas" id="abasStatus" role="tablist" aria-label="Filtrar pedidos">
+          <button type="button" role="tab" class="aba-cat" data-grupo="fazer" aria-selected="true">A fazer<span>0</span></button>
+          <button type="button" role="tab" class="aba-cat" data-grupo="caminho">A caminho<span>0</span></button>
+          <button type="button" role="tab" class="aba-cat" data-grupo="concluidos">Concluídos<span>0</span></button>
+          <button type="button" role="tab" class="aba-cat" data-grupo="aguardando">Aguardando pgto.<span>0</span></button>
+          <button type="button" role="tab" class="aba-cat" data-grupo="todos">Todos<span>0</span></button>
+        </div>
+        <label class="busca painel__busca">
+          <span class="sr-only">Buscar pedido</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="m20 20-4.5-4.5"/></svg>
+          <input type="search" id="buscaPedido" placeholder="Buscar por nome, pedido ou cidade" autocomplete="off">
+        </label>
+
+        <ul class="lista-pedidos" id="listaPedidos"></ul>
+        <p class="vazio" id="semPedidos" hidden>Nenhum pedido aqui. 🐼🎋</p>
+      </section>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden>
+    <img src="assets/img/panda.webp" alt="" width="44" height="44">
+    <div><strong id="toastTitulo">Salvo!</strong><span id="toastNome"></span></div>
+  </div>
+
+  <script src="js/produtos.js?v=20261021-6"></script>
+  <script src="js/comum.js?v=20261021-6"></script>
+  <script src="js/painel.js?v=20261021-6"></script>
+</body>
+</html>

@@ -9,16 +9,25 @@ O estudo de identidade visual que guiou o layout está em [`docs/identidade-visu
 ```
 index.html          loja: abertura, categorias, vitrine, Lupo, como comprar, endereço
 finalizar.html      página de finalizar pedido: sacola, dados, entrega/frete e pagamento
+acompanhar.html     o cliente acompanha o pedido (linha do tempo e rastreio dos Correios)
+painel.html         painel da loja (com senha): pedidos, status, código de rastreio, aviso no WhatsApp
 css/styles.css      estilos (cores e fontes no topo, em :root)
 js/produtos.js      catálogo: edite aqui produtos, preços, cores e tamanhos
 js/comum.js         funções usadas pelas duas páginas (sacola salva no navegador, preços, itens)
 js/app.js           loja: vitrine, filtros, detalhe do produto e gaveta da sacola
 js/finalizar.js     finalizar: CEP/frete, validação, confirmação e WhatsApp
 js/pagamento.js     aba de pagamento: Pix (QR e copia e cola) e cartão (campos seguros do Mercado Pago)
-js/efeitos.js       animações e interações (desligadas se o aparelho pede "reduzir movimento")
+js/acompanhar.js    acompanhar pedido
+js/painel.js        painel da loja
+js/efeitos.js       animações e interações (pausadas fora da tela; desligadas com "reduzir movimento")
 api/frete.js        função de servidor que consulta PAC e SEDEX na API dos Correios
 api/pagamento.js    função de servidor que cria o pagamento (Pix ou cartão) e consulta a situação do Pix
 api/config.js       entrega ao navegador a Public Key do Mercado Pago
+api/pedido.js       consulta pública do pedido (link com chave secreta ou número + CPF)
+api/painel.js       login e ações do painel da loja
+api/webhook-mp.js   aviso automático do Mercado Pago (pedido pago com o site fechado)
+api/_db.js          banco dos pedidos (Vercel KV/Upstash, ou arquivo no npm run dev)
+api/_pedidos.js     etapas dos pedidos e rastreio dos Correios
 server.js           servidor local (site + funções de api/)
 assets/img/         fotos e o panda
 ```
@@ -76,6 +85,24 @@ Em [mercadopago.com.br/developers](https://www.mercadopago.com.br/developers) �
 Use primeiro as credenciais **de teste** com os [cartões de teste](https://www.mercadopago.com.br/developers/pt/docs/checkout-api/integration-test/test-cards) e depois as **de produção**. Para receber Pix, a conta Mercado Pago precisa ter uma **chave Pix cadastrada**.
 
 **Sem as credenciais** (ou na prévia estática, sem servidor) a aba funciona em **modo demonstração**: aparece o aviso "Modo demonstração", os campos do cartão são comuns, o Pix mostra um QR de exemplo e nada é cobrado nem enviado. Assim a loja pode ver e aprovar o fluxo antes de ligar a API.
+
+## Pedidos: acompanhamento e painel da loja
+
+**Como o pedido nasce:** quando o cliente gera o Pix ou o cartão é aprovado, o pedido é gravado no banco. Ele passa para *Pagamento aprovado* sozinho: no cartão, na hora; no Pix, quando a página vê o pagamento ou quando o Mercado Pago avisa (`api/webhook-mp.js`, que funciona mesmo se o cliente fechou o site).
+
+**Cliente (`acompanhar.html`):** o link vai na confirmação e na mensagem do WhatsApp (`acompanhar.html?pedido=FFN-...&chave=...`). Sem o link, o cliente digita o número do pedido e o CPF (máximo de 8 tentativas a cada 15 minutos por pedido). Ele vê a linha do tempo, que muda conforme a entrega:
+
+| Entrega | Etapas |
+|---|---|
+| Correios | Pagamento aprovado → Separando → Enviado → Saiu para entrega → Entregue |
+| Cametá | Pagamento aprovado → Separando → Saiu para entrega → Entregue |
+| Retirada | Pagamento aprovado → Separando → Pronto para retirar → Retirado |
+
+Com código de rastreio, aparecem os eventos da **API de Rastreio dos Correios** (mesmo contrato do frete; consultados no máximo a cada 15 minutos). "Saiu para entrega" e "Entregue" avançam o pedido sozinhos. O cliente nunca vê CPF, e-mail, telefone nem endereço completo.
+
+**Loja (`painel.html`, com `PAINEL_SENHA`):** abas *A fazer*, *A caminho*, *Concluídos*, *Aguardando pagamento*; busca por nome, pedido ou cidade; botão para a próxima etapa; campo do código de rastreio (salvar o código já marca *Enviado*); **Avisar no WhatsApp**, que abre a conversa com o cliente com a mensagem pronta para a etapa e o link de acompanhamento; dados completos do pedido e histórico. A lista se atualiza a cada minuto.
+
+**Ativar:** na Vercel, *Storage → Create → KV (Upstash)* e conecte ao projeto (cria `KV_REST_API_URL` e `KV_REST_API_TOKEN`); defina `PAINEL_SENHA`; no Mercado Pago, cadastre o webhook `https://SEU-SITE/api/webhook-mp` (evento *Pagamentos*) e copie a assinatura secreta para `MP_WEBHOOK_SECRET`. Sem banco ou na prévia estática, acompanhamento e painel ficam em **modo demonstração** (pedidos de exemplo e os feitos no próprio aparelho).
 
 ## Cadastrar ou alterar produtos
 
