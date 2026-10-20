@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=20261020-7">
+  <link rel="stylesheet" href="css/styles.css?v=20261020-8">
 </head>
 <body class="pagina-finalizar">
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -53,6 +53,19 @@
         <li data-etapa="pagamento"><span>3</span>Pagamento</li>
       </ol>
 
+      <section class="confirmacao" id="confirmacao" hidden tabindex="-1" aria-live="polite">
+        <img src="assets/img/panda.svg" alt="" width="128" height="128">
+        <h2 id="confTitulo">Pedido confirmado! 🐼</h2>
+        <p id="confTexto"></p>
+        <dl class="confirmacao__dados">
+          <div><dt>Pedido</dt><dd id="confPedido"></dd></div>
+          <div><dt>Pagamento</dt><dd id="confPagamento"></dd></div>
+          <div><dt>Total</dt><dd id="confTotal"></dd></div>
+        </dl>
+        <a class="btn btn--whats btn--block" id="confWhats" target="_blank" rel="noopener">Avisar a loja no WhatsApp</a>
+        <a class="link-whats" href="index.html">Voltar para a loja</a>
+      </section>
+
       <div class="finalizar__vazio" id="finalizarVazio" hidden>
         <img src="assets/img/panda.svg" alt="" width="120" height="120">
         <h2>Sacola vazia… o panda tá com fome de look! 🎋</h2>
@@ -73,7 +86,10 @@
             <div class="campos">
               <label>Seu nome<input name="nome" required autocomplete="name" enterkeyhint="next"></label>
               <label>WhatsApp<input name="telefone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(91) 90000-0000" enterkeyhint="next"></label>
+              <label>E-mail<input name="email" type="email" inputmode="email" autocomplete="email" placeholder="voce@email.com" enterkeyhint="next"></label>
+              <label>CPF<input name="cpf" inputmode="numeric" autocomplete="off" placeholder="000.000.000-00" maxlength="14" enterkeyhint="next"></label>
             </div>
+            <p class="campos__nota">E-mail e CPF são pedidos pelo Mercado Pago para emitir o pagamento e enviar o comprovante.</p>
 
             <fieldset class="opcoes-entrega">
               <legend>Como quer receber?</legend>
@@ -112,12 +128,60 @@
           </section>
 
           <section class="etapa" id="etapaPagamento" aria-labelledby="tPag">
-            <header class="etapa__head"><span class="etapa__num">3</span><h2 id="tPag">Pagamento</h2></header>
-            <div class="mp-info">
-              <strong>Pagamento seguro pelo Mercado Pago</strong>
-              <span>Pix, cartão de crédito ou débito e boleto. Você conclui o pagamento no ambiente do Mercado Pago e volta pra cá.</span>
-              <span class="mp-info__metodos" aria-hidden="true"><b>Pix</b><b>Crédito</b><b>Débito</b><b>Boleto</b></span>
+            <header class="etapa__head"><span class="etapa__num">3</span><h2 id="tPag">Pagamento</h2><span class="etapa__extra">🔒 Mercado Pago</span></header>
+            <p class="demo-aviso" id="demoAviso" hidden>🧪 <strong>Modo demonstração:</strong> nada é cobrado e nada é enviado. Não digite dados reais de cartão.</p>
+
+            <div class="abas-pag" role="tablist" aria-label="Forma de pagamento">
+              <button type="button" role="tab" id="abaPix" aria-selected="true" aria-controls="painelPix" data-metodo="pix">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5 21.5 12 12 21.5 2.5 12Z"/><path d="m8 12 4-4 4 4-4 4Z"/></svg>
+                <span>Pix</span><small>Aprovação na hora</small>
+              </button>
+              <button type="button" role="tab" id="abaCartao" aria-selected="false" aria-controls="painelCartao" data-metodo="cartao" tabindex="-1">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="5" width="19" height="14" rx="2.5"/><path d="M2.5 10h19M6 15h4"/></svg>
+                <span>Cartão</span><small id="abaCartaoSub">Crédito ou débito</small>
+              </button>
             </div>
+
+            <div class="painel-pag" id="painelPix" role="tabpanel" aria-labelledby="abaPix">
+              <ol class="pix-passos" id="pixPassos">
+                <li><span>Toque em <strong>Gerar Pix</strong></span></li>
+                <li><span>Copie o código ou leia o QR Code no app do seu banco</span></li>
+                <li><span>Pronto! A confirmação aparece aqui na hora 🐼</span></li>
+              </ol>
+              <div class="pix-codigo" id="pixCodigo" hidden>
+                <div class="pix-qr"><img id="pixQr" alt="QR Code do Pix" width="220" height="220"></div>
+                <p class="pix-tempo">Expira em <strong id="pixTempo">30:00</strong></p>
+                <div class="pix-copia">
+                  <label for="pixCopia">Pix copia e cola</label>
+                  <textarea id="pixCopia" readonly rows="3"></textarea>
+                </div>
+                <button type="button" class="btn btn--gold btn--block" id="pixCopiar">Copiar código Pix</button>
+                <p class="pix-status" id="pixStatus" aria-live="polite"><span class="pix-status__ponto"></span> Aguardando o pagamento…</p>
+                <button type="button" class="link-whats" id="pixDemoPagar" hidden>Simular pagamento aprovado (demonstração)</button>
+              </div>
+            </div>
+
+            <div class="painel-pag" id="painelCartao" role="tabpanel" aria-labelledby="abaCartao" hidden>
+              <div class="cartao-visual" id="cartaoVisual" aria-hidden="true">
+                <img class="cartao-visual__panda" src="assets/img/panda-solo.svg" alt="" width="120" height="114">
+                <span class="cartao-visual__marca">Boutique FFN</span>
+                <span class="cartao-visual__chip"></span>
+                <span class="cartao-visual__bandeira" id="cvBandeira"></span>
+                <span class="cartao-visual__numero" id="cvNumero">•••• •••• •••• ••••</span>
+                <span class="cartao-visual__nome" id="cvNome">NOME NO CARTÃO</span>
+                <span class="cartao-visual__validade" id="cvValidade">MM/AA</span>
+              </div>
+              <div class="campos campos--cartao">
+                <div class="campo campo--cheio"><span class="campo__rotulo" id="rNumero">Número do cartão</span><div class="campo-seguro" id="mpNumero" aria-labelledby="rNumero"></div></div>
+                <div class="campo"><span class="campo__rotulo" id="rValidade">Validade</span><div class="campo-seguro" id="mpValidade" aria-labelledby="rValidade"></div></div>
+                <div class="campo"><span class="campo__rotulo" id="rCvv">CVV</span><div class="campo-seguro" id="mpCvv" aria-labelledby="rCvv"></div></div>
+                <label class="campo--cheio">Nome impresso no cartão<input name="titular" autocomplete="cc-name" autocapitalize="characters" placeholder="Como está no cartão"></label>
+                <label class="campo--cheio">Parcelas<select name="parcelas" id="parcelas"><option value="">Digite o número do cartão</option></select></label>
+              </div>
+              <p class="aviso" id="cartaoAviso" role="alert"></p>
+              <p class="cartao-seguro">🔒 Os dados do cartão vão criptografados direto para o Mercado Pago. A loja não vê nem guarda o número do cartão.</p>
+            </div>
+
             <label class="campo-obs">Observações (opcional)<textarea name="obs" rows="2" placeholder="Ex.: é presente, embrulhar"></textarea></label>
           </section>
         </div>
@@ -130,10 +194,10 @@
           </div>
           <div class="total"><span>Total</span><strong id="sacolaTotal">R$ 0,00</strong></div>
           <p class="aviso" id="checkoutAviso" role="alert"></p>
-          <button class="btn btn--mp btn--block" id="pagarMP" type="submit" value="mp">Pagar com Mercado Pago</button>
+          <button class="btn btn--gold btn--block btn--pagar" id="pagar" type="submit" value="pagar">Gerar Pix</button>
           <button class="link-whats" id="enviarPedido" type="submit" value="whats">Prefiro combinar o pagamento pelo WhatsApp</button>
           <ul class="garantias">
-            <li>🔒 Pagamento processado pelo Mercado Pago</li>
+            <li>🔒 Pagamento seguro processado pelo Mercado Pago</li>
             <li>🎋 Entrega grátis em Cametá</li>
             <li>💬 Atendimento pelo WhatsApp (91) 98510-6107</li>
           </ul>
@@ -145,23 +209,14 @@
   <!-- Barra fixa no celular -->
   <div class="barra-pagar" id="barraPagar" hidden>
     <div><small>Total</small><strong id="barraTotal">R$ 0,00</strong></div>
-    <button class="btn btn--mp" type="submit" form="checkout" value="mp" id="barraPagarBtn">Pagar</button>
+    <button class="btn btn--gold" type="submit" form="checkout" value="pagar" id="barraPagarBtn">Gerar Pix</button>
   </div>
 
-  <!-- Retorno do Mercado Pago -->
-  <dialog class="modal modal--retorno" id="modalRetorno" aria-labelledby="retornoTitulo">
-    <div class="retorno">
-      <img src="assets/img/panda.svg" alt="" width="96" height="96">
-      <h2 id="retornoTitulo"></h2>
-      <p id="retornoTexto"></p>
-      <a class="btn btn--whats btn--block" id="retornoWhats" target="_blank" rel="noopener">Avisar a loja no WhatsApp</a>
-      <a class="link-whats" href="index.html">Voltar para a loja</a>
-    </div>
-  </dialog>
 
-  <script src="js/produtos.js?v=20261020-7"></script>
-  <script src="js/comum.js?v=20261020-7"></script>
-  <script src="js/finalizar.js?v=20261020-7"></script>
-  <script src="js/efeitos.js?v=20261020-7"></script>
+  <script src="js/produtos.js?v=20261020-8"></script>
+  <script src="js/comum.js?v=20261020-8"></script>
+  <script src="js/pagamento.js?v=20261020-8"></script>
+  <script src="js/finalizar.js?v=20261020-8"></script>
+  <script src="js/efeitos.js?v=20261020-8"></script>
 </body>
 </html>

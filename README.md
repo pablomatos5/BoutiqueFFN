@@ -1,6 +1,6 @@
 # Boutique FFN · Fica Feio Nunca
 
-Site de vendas da Boutique FFN (Cametá-PA): vitrine com filtros e busca, sacola, frete (grátis em Cametá, Correios para o resto do Brasil), pagamento pelo Mercado Pago e aviso do pedido no WhatsApp da loja.
+Site de vendas da Boutique FFN (Cametá-PA): vitrine com filtros e busca, sacola, frete (grátis em Cametá, Correios para o resto do Brasil), pagamento com Pix e cartão dentro do próprio site (Checkout Transparente do Mercado Pago) e aviso do pedido no WhatsApp da loja.
 
 O estudo de identidade visual que guiou o layout está em [`docs/identidade-visual.md`](docs/identidade-visual.md).
 
@@ -13,11 +13,13 @@ css/styles.css      estilos (cores e fontes no topo, em :root)
 js/produtos.js      catálogo: edite aqui produtos, preços, cores e tamanhos
 js/comum.js         funções usadas pelas duas páginas (sacola salva no navegador, preços, itens)
 js/app.js           loja: vitrine, filtros, detalhe do produto e gaveta da sacola
-js/finalizar.js     finalizar: CEP/frete, validação, Mercado Pago, WhatsApp e volta do pagamento
+js/finalizar.js     finalizar: CEP/frete, validação, confirmação e WhatsApp
+js/pagamento.js     aba de pagamento: Pix (QR e copia e cola) e cartão (campos seguros do Mercado Pago)
 js/efeitos.js       animações e interações (desligadas se o aparelho pede "reduzir movimento")
 api/frete.js        função de servidor que consulta PAC e SEDEX na API dos Correios
-api/pagamento.js    função de servidor que cria o pagamento no Mercado Pago (Checkout Pro)
-server.js           servidor local (site + /api/frete)
+api/pagamento.js    função de servidor que cria o pagamento (Pix ou cartão) e consulta a situação do Pix
+api/config.js       entrega ao navegador a Public Key do Mercado Pago
+server.js           servidor local (site + funções de api/)
 assets/img/         fotos e o panda
 ```
 
@@ -53,15 +55,27 @@ A API exige **contrato com os Correios** (pessoa jurídica). No portal [Meu Corr
 
 Confira no contrato os códigos de PAC e SEDEX, que podem variar.
 
-## Pagamento (Mercado Pago)
+## Pagamento (dentro do site)
 
-O botão **Pagar com Mercado Pago** chama `api/pagamento.js`, que monta o pedido a partir do catálogo (`js/produtos.js`), recalcula o frete e cria uma preferência do **Checkout Pro**. O cliente paga com Pix, cartão ou boleto no ambiente do Mercado Pago e volta para `finalizar.html`, que mostra o resultado (aprovado, pendente ou não concluído) e um botão para avisar a loja no WhatsApp com o número do pedido e o ID do pagamento.
+O cliente paga **sem sair do site**, na aba de pagamento da página de finalizar, usando o **Checkout Transparente** do Mercado Pago:
 
-- Preços e frete são sempre recalculados no servidor, então o valor não pode ser alterado pelo navegador.
-- Os pagamentos aparecem no painel do Mercado Pago da loja, com o número do pedido (`FFN-...`) como referência externa e os dados de entrega.
-- Se o pagamento online não estiver disponível (sem token, ou frete dos Correios fora do ar), o site mostra o aviso e o cliente ainda pode finalizar pelo WhatsApp.
+- **Pix:** `api/pagamento.js` cria o pagamento e o site mostra o QR Code e o código copia e cola, com contagem regressiva (`PIX_MINUTOS`, padrão 30). A página consulta a situação a cada 5 segundos e mostra a confirmação sozinha quando o Pix é pago. Se a sacola ou o frete mudarem, o Pix antigo deixa de valer e o cliente gera outro.
+- **Cartão (crédito e débito):** número, validade e CVV são **campos seguros do Mercado Pago** (iframes) montados dentro do formulário da loja, com o visual do site. O navegador gera um token e só ele vai para o servidor: a loja nunca vê nem guarda o número do cartão. Bandeira e parcelas vêm do Mercado Pago a partir dos primeiros dígitos. Recusas aparecem com mensagem clara ("cartão sem limite", "confira o CVV"…), e o cliente pode tentar de novo ou trocar para Pix.
+- **Segurança:** preços e frete são recalculados no servidor, CPF e e-mail são validados, cada tentativa leva uma chave de idempotência (sem cobrança duplicada) e o identificador do aparelho (`security.js`) vai para a análise antifraude do Mercado Pago.
+- **Confirmação:** aparece na própria página, com número do pedido, forma de pagamento e um botão para avisar a loja no WhatsApp. No painel do Mercado Pago cada pagamento tem o número do pedido (`FFN-...`) e os dados de entrega.
 
-**Credencial:** em [mercadopago.com.br/developers](https://www.mercadopago.com.br/developers) → *Suas integrações* → criar aplicação (Checkout Pro) → *Credenciais de produção*, copie o **Access Token** para `MP_ACCESS_TOKEN`. Para testar sem cobrar, use o Access Token de **teste** e os cartões de teste do Mercado Pago.
+### Ativar (receber a API)
+
+Em [mercadopago.com.br/developers](https://www.mercadopago.com.br/developers) → *Suas integrações* → criar aplicação (*Pagamentos online* → *Checkout Transparente*) → *Credenciais*:
+
+| Variável | Onde fica |
+|---|---|
+| `MP_PUBLIC_KEY` | Public Key (vai para o navegador; só serve para criar o token do cartão) |
+| `MP_ACCESS_TOKEN` | Access Token (fica só no servidor) |
+
+Use primeiro as credenciais **de teste** com os [cartões de teste](https://www.mercadopago.com.br/developers/pt/docs/checkout-api/integration-test/test-cards) e depois as **de produção**. Para receber Pix, a conta Mercado Pago precisa ter uma **chave Pix cadastrada**.
+
+**Sem as credenciais** (ou na prévia estática, sem servidor) a aba funciona em **modo demonstração**: aparece o aviso "Modo demonstração", os campos do cartão são comuns, o Pix mostra um QR de exemplo e nada é cobrado nem enviado. Assim a loja pode ver e aprovar o fluxo antes de ligar a API.
 
 ## Cadastrar ou alterar produtos
 
@@ -78,7 +92,7 @@ Em `js/app.js` (constante `WHATSAPP`) e nos links `wa.me` do `index.html`.
 Use a **Vercel** (grátis), porque ela roda as funções de `api/` (frete e pagamento) sem configuração:
 
 1. Em vercel.com, *Add New → Project* e importe este repositório.
-2. Em *Settings → Environment Variables*, cadastre as variáveis acima (Correios e `MP_ACCESS_TOKEN`).
-3. Faça o deploy. O site e as funções `/api/frete` e `/api/pagamento` sobem juntos.
+2. Em *Settings → Environment Variables*, cadastre as variáveis acima (Correios, `MP_PUBLIC_KEY` e `MP_ACCESS_TOKEN`).
+3. Faça o deploy. O site e as funções de `api/` sobem juntos.
 
-GitHub Pages e outras hospedagens estáticas também mostram o site, mas sem frete dos Correios nem pagamento online: lá o pedido é finalizado pelo WhatsApp (Cametá continua com frete grátis).
+GitHub Pages e outras hospedagens estáticas também mostram o site, mas sem frete dos Correios e com o pagamento em modo demonstração (o pedido pode ser finalizado pelo WhatsApp; Cametá continua com frete grátis).
