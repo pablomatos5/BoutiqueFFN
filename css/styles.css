@@ -103,7 +103,7 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
 /* Hero */
 .hero { position: relative; background: radial-gradient(1200px 500px at 80% 0%, var(--noite-3), var(--noite) 60%); color: var(--creme); overflow: hidden; }
 .hero__inner { position: relative; }
-.hero__marca-dagua { position: absolute; left: -150px; bottom: -190px; width: 600px; opacity: .06; pointer-events: none; }
+.hero__marca-dagua { position: absolute; left: -150px; bottom: -190px; width: 600px; opacity: .06; pointer-events: none;  height: auto;}
 .hero__inner { display: grid; grid-template-columns: 1.1fr .9fr; gap: 3rem; align-items: center; padding-block: 4.5rem; }
 .hero h1 { font-family: var(--fonte-titulo); font-size: clamp(2.1rem, 5vw, 3.6rem); font-weight: 700; }
 .hero h1 em { font-style: normal; display: block; background: var(--gradiente-ouro); -webkit-background-clip: text; background-clip: text; color: transparent; }
@@ -116,7 +116,7 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
   width: min(380px, 100%); height: auto; aspect-ratio: 4 / 5; object-fit: cover; object-position: top;
   border-radius: 200px 200px var(--raio) var(--raio); border: 2px solid var(--ouro); box-shadow: 0 30px 60px rgba(0, 0, 0, .45);
 }
-.hero__panda { position: absolute; width: 110px; left: -40px; bottom: 30px; filter: drop-shadow(0 10px 20px rgba(0, 0, 0, .5)); }
+.hero__panda { position: absolute; width: 110px; left: -40px; bottom: 30px; filter: drop-shadow(0 10px 20px rgba(0, 0, 0, .5));  height: auto;}
 
 /* Categorias */
 .categorias { background: var(--noite-2); padding-block: 1.25rem; }
@@ -180,7 +180,7 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
 .lupo-banner__inner { position: relative; z-index: 1; }
 .lupo-banner__texto { max-width: 560px; display: grid; gap: .9rem; justify-items: start; }
 .lupo-banner__texto h2 { margin: 0; }
-.lupo-banner__panda { position: absolute; right: -40px; top: 50%; transform: translateY(-50%) rotate(-6deg); width: 380px; filter: drop-shadow(0 20px 40px rgba(0, 0, 0, .5)); }
+.lupo-banner__panda { position: absolute; right: -40px; top: 50%; transform: translateY(-50%) rotate(-6deg); width: 380px; filter: drop-shadow(0 20px 40px rgba(0, 0, 0, .5));  height: auto;}
 .lupo-banner p { color: #cfcabe; max-width: 38rem; margin: 0; }
 .lupo-banner .eyebrow { color: var(--ouro); }
 
@@ -198,7 +198,7 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
 .visite address { font-style: normal; font-size: 1.1rem; color: #d8d4c9; }
 .mapa { position: relative; }
 .mapa iframe { display: block; width: 100%; height: 380px; border: 2px solid var(--ouro); border-radius: var(--raio); background: var(--noite-2); box-shadow: 0 30px 60px rgba(0, 0, 0, .4); }
-.mapa__panda { position: absolute; width: 92px; left: -30px; bottom: -26px; filter: drop-shadow(0 10px 20px rgba(0, 0, 0, .5)); }
+.mapa__panda { position: absolute; width: 92px; left: -30px; bottom: -26px; filter: drop-shadow(0 10px 20px rgba(0, 0, 0, .5));  height: auto;}
 
 /* Rodapé */
 .footer { background: #080d0b; color: #a8b0ab; padding-block: 2.5rem 6rem; font-size: .85rem; }
