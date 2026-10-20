@@ -11,6 +11,7 @@
  *   imagem    caminho da foto (assets/img/...). Sem foto, o site mostra um card na identidade da loja
  *   cores     lista de cores disponíveis
  *   tamanhos  lista de tamanhos disponíveis
+ *   peso      opcional, gramas por peça para o frete dos Correios (padrão 300)
  *   selo      opcional: "Novidade", "Lupo", "Mais vendido"...
  *   descricao texto curto do produto
  *
@@ -64,6 +65,7 @@ const PRODUTOS = [
   },
   {
     id: "bermuda-sarja",
+    peso: 400,
     nome: "Bermuda de Sarja",
     categoria: "shorts",
     publico: "masculino",
@@ -95,6 +97,7 @@ const PRODUTOS = [
   },
   {
     id: "conjunto-fitness",
+    peso: 350,
     nome: "Conjunto Fitness Top + Legging",
     categoria: "feminino",
     publico: "feminino",
@@ -115,6 +118,7 @@ const PRODUTOS = [
   },
   {
     id: "meia-lupo-kit",
+    peso: 150,
     nome: "Kit de Meias Lupo",
     categoria: "lupo",
     publico: "unissex",
@@ -126,6 +130,7 @@ const PRODUTOS = [
   },
   {
     id: "cueca-lupo",
+    peso: 100,
     nome: "Cueca Boxer Lupo",
     categoria: "lupo",
     publico: "masculino",
@@ -137,6 +142,7 @@ const PRODUTOS = [
   },
   {
     id: "bone-ffn",
+    peso: 150,
     nome: "Boné",
     categoria: "acessorios",
     publico: "unissex",

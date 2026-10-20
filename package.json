@@ -1,0 +1,11 @@
+{
+  "name": "boutique-ffn",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

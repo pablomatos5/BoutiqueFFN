@@ -46,7 +46,7 @@ Fonte: perfil [@boutiqueficafeionunca_](https://www.instagram.com/boutiqueficafe
 | Tipografia | **Cinzel** (serifa em caixa alta, ecoa o "BOUTIQUE" da fachada) + **Montserrat** (texto e o monograma FFN em itálico pesado) |
 | Mascote | Panda como ícone, favicon e card das peças ainda sem foto |
 | Compra | Sacola no site → pedido pronto no WhatsApp, que é como a loja já vende hoje |
-| Entrega | Retirada na loja ou entrega em Cametá |
+| Entrega | Retirada na loja ou entrega grátis em Cametá; Correios (PAC/SEDEX) para o resto do Brasil |
 | Pagamento | Pix, cartão ou dinheiro, combinados no WhatsApp |
 
 ## Pendências com o cliente
@@ -54,5 +54,5 @@ Fonte: perfil [@boutiqueficafeionunca_](https://www.instagram.com/boutiqueficafe
 1. **Preços reais** de cada peça (os do site são provisórios).
 2. **Logo em vetor** (SVG/AI/PDF) do FFN e do panda. O site usa versões recriadas.
 3. **Fotos de produto** para as peças sem imagem (fundo neutro, mesmo ângulo).
-4. Confirmar se faz **entrega** e qual a taxa, e se aceita cartão online.
+4. **Credenciais do contrato com os Correios** (usuário, código de acesso da API e cartão de postagem) para ativar o cálculo do frete.
 5. Domínio desejado (ex.: `boutiqueffn.com.br`).

@@ -199,7 +199,6 @@
     $("#contadorCarrinho").textContent = qtdTotal;
     $("#sacolaVazia").hidden = sacola.length > 0;
     $("#sacolaRodape").hidden = sacola.length === 0;
-    $("#sacolaTotal").textContent = brl(totalSacola());
     $("#sacolaLista").innerHTML = sacola
       .map((i, idx) => {
         const p = porId(i.id);
@@ -223,6 +222,7 @@
       })
       .join("");
     if (sacola.length === 0) mostrarEtapa("itens");
+    sacolaMudou();
   }
 
   $("#sacolaLista").addEventListener("click", (e) => {
@@ -255,8 +255,30 @@
   fundo.addEventListener("click", fecharSacola);
   document.addEventListener("keydown", (e) => { if (e.key === "Escape" && gaveta.classList.contains("is-open")) fecharSacola(); });
 
-  /* ---------- Checkout via WhatsApp ---------- */
+  /* ---------- Checkout: entrega e frete ---------- */
   const form = $("#checkout");
+  const PESO_PADRAO = 300; // gramas por peça quando o produto não informa `peso`
+  // tipo: "retirada" | "gratis" (Cametá) | "correios" | "combinar" (API indisponível) | null (falta calcular)
+  let frete = { tipo: "retirada", valor: 0 };
+  let cotacao = null; // { cep, local, opcoes }
+
+  const pesoSacola = () => sacola.reduce((s, i) => s + (porId(i.id).peso || PESO_PADRAO) * i.qtd, 0);
+  const ehCameta = (local) => local.uf === "PA" && semAcento(local.localidade) === "cameta";
+
+  function atualizarTotais() {
+    const sub = totalSacola();
+    $("#sacolaSubtotal").textContent = brl(sub);
+    const emCheckout = !form.hidden;
+    $("#linhaFrete").hidden = !emCheckout;
+    const rotulo = {
+      retirada: "Grátis (retirada)",
+      gratis: "Grátis (Cametá)",
+      correios: frete.valor != null ? brl(frete.valor) : "",
+      combinar: "A combinar",
+    }[frete.tipo] || "Informe o CEP";
+    $("#sacolaFrete").textContent = rotulo;
+    $("#sacolaTotal").textContent = brl(sub + (emCheckout && frete.valor ? frete.valor : 0));
+  }
 
   function mostrarEtapa(etapa) {
     const checkout = etapa === "checkout";
@@ -264,34 +286,163 @@
     form.hidden = !checkout;
     $("#irCheckout").hidden = checkout;
     $("#enviarPedido").hidden = !checkout;
+    atualizarTotais();
   }
 
   $("#irCheckout").addEventListener("click", () => { mostrarEtapa("checkout"); form.nome.focus(); });
   $("#voltarItens").addEventListener("click", () => mostrarEtapa("itens"));
-  form.addEventListener("change", () => { $("#campoEndereco").hidden = form.entrega.value !== "entrega"; });
+
+  function statusFrete(texto, classe = "") {
+    const el = $("#freteStatus");
+    el.textContent = texto;
+    el.className = `frete-status ${classe}`;
+  }
+
+  function definirEntrega() {
+    const entrega = form.entrega.value === "entrega";
+    $("#campoEndereco").hidden = !entrega;
+    if (!entrega) frete = { tipo: "retirada", valor: 0 };
+    else if (frete.tipo === "retirada") aplicarCotacao();
+    atualizarTotais();
+  }
+  form.entrega.forEach((r) => r.addEventListener("change", definirEntrega));
+
+  // Aplica a cotação guardada (ou pede o CEP, se não houver)
+  function aplicarCotacao() {
+    $("#freteOpcoes").innerHTML = "";
+    if (!cotacao) { frete = { tipo: null, valor: null }; return; }
+    if (cotacao.gratis) {
+      frete = { tipo: "gratis", valor: 0 };
+      statusFrete("Entrega grátis em Cametá! 🐼", "is-gratis");
+    } else if (cotacao.opcoes?.length) {
+      $("#freteOpcoes").innerHTML = cotacao.opcoes
+        .map((o, i) => `
+          <label class="frete-op">
+            <input type="radio" name="servico" value="${i}" ${i === 0 ? "checked" : ""}>
+            <span>${esc(o.servico)}<small>${o.prazo ? `até ${o.prazo} dias úteis` : "prazo informado no envio"}</small></span>
+            <strong>${brl(o.preco)}</strong>
+          </label>`)
+        .join("");
+      escolherServico(0);
+      statusFrete(`Envio pelos Correios para ${cotacao.local.localidade}-${cotacao.local.uf}`);
+    } else {
+      frete = { tipo: "combinar", valor: 0 };
+      statusFrete("Não conseguimos calcular o frete agora. A gente combina o valor com você no WhatsApp.", "is-erro");
+    }
+  }
+
+  function escolherServico(i) {
+    const o = cotacao.opcoes[i];
+    frete = { tipo: "correios", valor: o.preco, servico: o.servico, prazo: o.prazo };
+    atualizarTotais();
+  }
+  $("#freteOpcoes").addEventListener("change", (e) => {
+    if (e.target.name === "servico") escolherServico(Number(e.target.value));
+  });
+
+  async function calcularFrete() {
+    const cep = form.cep.value.replace(/\D/g, "");
+    if (cep.length !== 8) { statusFrete("Digite um CEP com 8 números.", "is-erro"); return; }
+    cotacao = null;
+    $("#freteOpcoes").innerHTML = "";
+    $("#enderecoCampos").hidden = true;
+    statusFrete("Consultando CEP…");
+
+    let local;
+    try {
+      local = await (await fetch(`https://viacep.com.br/ws/${cep}/json/`)).json();
+    } catch {
+      local = null;
+    }
+    if (!local || local.erro) { statusFrete("CEP não encontrado. Confira os números.", "is-erro"); frete = { tipo: null, valor: null }; atualizarTotais(); return; }
+
+    form.rua.value = local.logradouro || "";
+    form.bairro.value = local.bairro || "";
+    $("#enderecoCidade").textContent = `${local.localidade} - ${local.uf}`;
+    $("#enderecoCampos").hidden = false;
+
+    if (ehCameta(local)) {
+      cotacao = { cep, local, gratis: true };
+    } else {
+      statusFrete("Calculando frete nos Correios…");
+      let opcoes = [];
+      try {
+        const r = await fetch(`api/frete?cep=${cep}&peso=${pesoSacola()}`);
+        if (r.ok) opcoes = (await r.json()).opcoes || [];
+      } catch { /* sem backend (ex.: prévia estática): frete a combinar */ }
+      cotacao = { cep, local, opcoes };
+    }
+    aplicarCotacao();
+    atualizarTotais();
+    (form.rua.value ? form.numero : form.rua).focus();
+  }
+
+  $("#calcularFrete").addEventListener("click", calcularFrete);
+  form.cep.addEventListener("input", () => {
+    let v = form.cep.value.replace(/\D/g, "").slice(0, 8);
+    form.cep.value = v.length > 5 ? `${v.slice(0, 5)}-${v.slice(5)}` : v;
+    if (v.length === 8 && v !== cotacao?.cep) calcularFrete();
+  });
+  form.cep.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); calcularFrete(); } });
+
+  // A sacola mudou: o peso mudou, então a cotação dos Correios precisa ser refeita
+  function sacolaMudou() {
+    if (cotacao && !cotacao.gratis && cotacao.opcoes?.length) {
+      cotacao = null;
+      $("#freteOpcoes").innerHTML = "";
+      if (form.entrega.value === "entrega") {
+        frete = { tipo: null, valor: null };
+        statusFrete("A sacola mudou. Calcule o frete de novo.");
+      }
+    }
+    atualizarTotais();
+  }
 
   form.addEventListener("submit", (e) => {
     e.preventDefault();
+    const aviso = (t, campo) => { $("#checkoutAviso").textContent = t; campo?.focus(); };
     const nome = form.nome.value.trim();
-    const entrega = form.entrega.value;
-    const endereco = form.endereco.value.trim();
-    if (!nome) { $("#checkoutAviso").textContent = "Informe seu nome."; form.nome.focus(); return; }
-    if (entrega === "entrega" && !endereco) { $("#checkoutAviso").textContent = "Informe o endereço de entrega."; form.endereco.focus(); return; }
-    $("#checkoutAviso").textContent = "";
+    const entrega = form.entrega.value === "entrega";
+    if (!nome) return aviso("Informe seu nome.", form.nome);
+    if (entrega) {
+      if (!cotacao) return aviso("Informe o CEP e calcule o frete.", form.cep);
+      if (!form.rua.value.trim()) return aviso("Informe a rua.", form.rua);
+      if (!form.numero.value.trim()) return aviso("Informe o número.", form.numero);
+    }
+    aviso("");
 
     const linhas = sacola.map((i) => {
       const p = porId(i.id);
       return `• ${i.qtd}x ${p.nome} (${i.cor}, tam. ${i.tamanho}): ${brl(p.preco * i.qtd)}`;
     });
+    const sub = totalSacola();
+    let envio, freteTxt;
+    if (!entrega) {
+      envio = "Vou retirar na loja";
+      freteTxt = "Frete: grátis (retirada)";
+    } else {
+      const l = cotacao.local;
+      const end = [`${form.rua.value.trim()}, ${form.numero.value.trim()}`, form.complemento.value.trim(), form.bairro.value.trim(), `${l.localidade}-${l.uf}`, `CEP ${form.cep.value}`]
+        .filter(Boolean).join(" · ");
+      envio = `Entregar em: ${end}`;
+      freteTxt = {
+        gratis: "Frete: grátis (Cametá)",
+        correios: `Frete: ${frete.servico} ${brl(frete.valor)}${frete.prazo ? ` (até ${frete.prazo} dias úteis)` : ""}`,
+        combinar: "Frete: a combinar",
+      }[frete.tipo];
+    }
+
     const msg = [
       `Olá, Boutique FFN! Quero fazer um pedido pelo site:`,
       ``,
       ...linhas,
       ``,
-      `*Total: ${brl(totalSacola())}*`,
+      `Subtotal: ${brl(sub)}`,
+      freteTxt,
+      `*Total: ${brl(sub + (frete.valor || 0))}*${frete.tipo === "combinar" ? " + frete" : ""}`,
       ``,
       `Nome: ${nome}`,
-      entrega === "entrega" ? `Entrega em: ${endereco}` : `Vou retirar na loja`,
+      envio,
       `Pagamento: ${form.pagamento.value}`,
       form.obs.value.trim() ? `Obs.: ${form.obs.value.trim()}` : "",
     ].filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n").trim();

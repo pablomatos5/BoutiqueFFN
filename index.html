@@ -18,7 +18,7 @@
 <body>
 
   <div class="topbar">
-    <p>Compre pelo site e finalize no WhatsApp · Retire na loja ou receba em Cametá</p>
+    <p>Entrega grátis em Cametá · Enviamos para todo o Brasil pelos Correios</p>
   </div>
 
   <header class="header">
@@ -127,7 +127,7 @@
           <li><span>1</span><h3>Escolha</h3><p>Selecione cor e tamanho e coloque na sacola.</p></li>
           <li><span>2</span><h3>Finalize</h3><p>Preencha seus dados. O pedido segue pronto para o nosso WhatsApp.</p></li>
           <li><span>3</span><h3>Pague</h3><p>Pix, cartão ou dinheiro, combinados direto com a gente.</p></li>
-          <li><span>4</span><h3>Receba</h3><p>Retire na loja ou receba em casa em Cametá.</p></li>
+          <li><span>4</span><h3>Receba</h3><p>Retire na loja, receba grátis em Cametá ou pelos Correios em todo o Brasil.</p></li>
         </ol>
       </div>
     </section>
@@ -147,7 +147,13 @@
             <a class="btn btn--ghost" href="https://www.instagram.com/boutiqueficafeionunca_/" target="_blank" rel="noopener">@boutiqueficafeionunca_</a>
           </div>
         </div>
-        <img class="visite__panda" src="assets/img/panda.svg" alt="" aria-hidden="true">
+        <div class="mapa">
+          <iframe
+            title="Mapa: Boutique FFN, Rua 13 de Maio, Cametá-PA"
+            src="https://maps.google.com/maps?q=Rua%2013%20de%20Maio%2C%20Centro%2C%20Camet%C3%A1%20-%20PA&z=17&output=embed"
+            loading="lazy" referrerpolicy="no-referrer-when-downgrade" allowfullscreen></iframe>
+          <img class="mapa__panda" src="assets/img/panda.svg" alt="" aria-hidden="true">
+        </div>
       </div>
     </section>
 
@@ -221,10 +227,27 @@
       <label>Seu nome<input name="nome" required autocomplete="name"></label>
       <fieldset>
         <legend>Como quer receber?</legend>
-        <label class="radio"><input type="radio" name="entrega" value="retirada" checked> Retirar na loja (Rua 13 de Maio)</label>
-        <label class="radio"><input type="radio" name="entrega" value="entrega"> Entrega em Cametá</label>
+        <label class="radio"><input type="radio" name="entrega" value="retirada" checked> Retirar na loja (Rua 13 de Maio) · grátis</label>
+        <label class="radio"><input type="radio" name="entrega" value="entrega"> Receber em casa</label>
       </fieldset>
-      <label id="campoEndereco" hidden>Endereço para entrega<textarea name="endereco" rows="2" autocomplete="street-address"></textarea></label>
+
+      <div class="endereco" id="campoEndereco" hidden>
+        <div class="cep-linha">
+          <label>CEP<input name="cep" inputmode="numeric" autocomplete="postal-code" placeholder="00000-000" maxlength="9"></label>
+          <button type="button" class="btn btn--ghost-escuro" id="calcularFrete">Calcular frete</button>
+        </div>
+        <p class="frete-status" id="freteStatus" aria-live="polite"></p>
+        <div class="frete-opcoes" id="freteOpcoes"></div>
+        <div class="endereco__campos" id="enderecoCampos" hidden>
+          <p class="endereco__cidade" id="enderecoCidade"></p>
+          <label>Rua<input name="rua" autocomplete="address-line1"></label>
+          <div class="endereco__duo">
+            <label>Número<input name="numero" inputmode="numeric"></label>
+            <label>Bairro<input name="bairro"></label>
+          </div>
+          <label>Complemento / referência<input name="complemento" autocomplete="address-line2"></label>
+        </div>
+      </div>
       <fieldset>
         <legend>Pagamento</legend>
         <label class="radio"><input type="radio" name="pagamento" value="Pix" checked> Pix</label>
@@ -236,6 +259,10 @@
     </form>
 
     <div class="drawer__foot" id="sacolaRodape" hidden>
+      <div class="resumo">
+        <div><span>Subtotal</span><span id="sacolaSubtotal">R$ 0,00</span></div>
+        <div id="linhaFrete" hidden><span>Frete</span><span id="sacolaFrete"></span></div>
+      </div>
       <div class="total"><span>Total</span><strong id="sacolaTotal">R$ 0,00</strong></div>
       <button class="btn btn--gold btn--block" id="irCheckout">Finalizar pedido</button>
       <button class="btn btn--whats btn--block" id="enviarPedido" hidden form="checkout" type="submit">Enviar pedido no WhatsApp</button>
