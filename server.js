@@ -2,8 +2,9 @@
 import http from "node:http";
 import fs from "node:fs";
 import path from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
-const raiz = path.dirname(new URL(import.meta.url).pathname);
+const raiz = path.dirname(fileURLToPath(import.meta.url));
 const porta = Number(process.env.PORT) || 8000;
 
 // Carrega .env (formato CHAVE=valor) sem dependências
@@ -17,7 +18,7 @@ if (fs.existsSync(path.join(raiz, ".env"))) {
 // mesmos cabeçalhos de segurança da Vercel, para testar localmente
 const seguranca = JSON.parse(fs.readFileSync(path.join(raiz, "seguranca.json"), "utf8")).headers;
 
-const tipos = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml", ".jpg": "image/jpeg", ".png": "image/png", ".json": "application/json" };
+const tipos = { ".html": "text/html", ".css": "text/css", ".js": "text/javascript", ".svg": "image/svg+xml", ".jpg": "image/jpeg", ".png": "image/png", ".webp": "image/webp", ".ico": "image/x-icon", ".txt": "text/plain", ".json": "application/json" };
 
 http
   .createServer((req, res) => {
@@ -27,7 +28,7 @@ http
     if (rota) {
       const arquivo = path.join(raiz, "api", `${rota[1]}.js`);
       if (!fs.existsSync(arquivo)) { res.statusCode = 404; return res.end("Não encontrado"); }
-      return import(arquivo).then((m) => m.default(req, res));
+      return import(pathToFileURL(arquivo).href).then((m) => m.default(req, res));
     }
 
     const arquivo = path.normalize(path.join(raiz, url.pathname === "/" ? "index.html" : decodeURIComponent(url.pathname)));

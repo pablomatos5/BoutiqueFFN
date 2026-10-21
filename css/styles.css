@@ -339,7 +339,7 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
   .card__nome { font-size: .88rem; }
   .card__rodape { flex-direction: column; align-items: stretch; gap: .5rem; }
   .passos { grid-template-columns: 1fr; }
-  .hero__cta .btn { flex: 1; }
+  .hero .hero__cta .btn { flex: 1; }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; }
@@ -1114,8 +1114,8 @@ body { background: var(--papel); padding-top: calc(var(--altura-header) + env(sa
   .hero .eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #3ecf6e; box-shadow: 0 0 0 3px rgba(62, 207, 110, .25); }
   .hero h1 { font-size: clamp(1.85rem, 8.4vw, 2.4rem); line-height: 1.08; text-shadow: 0 2px 18px rgba(0, 0, 0, .5); }
   .hero__lead { font-size: .95rem; margin-top: .8rem; }
-  .hero__cta { flex-wrap: nowrap; gap: .6rem; margin-top: 1.25rem; }
-  .hero__cta .btn { flex: 1; min-width: 0; padding: .9rem .6rem; font-size: .78rem; letter-spacing: .06em; white-space: nowrap; justify-content: center; text-align: center; }
+  .hero .hero__cta { flex-wrap: nowrap; gap: .6rem; margin-top: 1.25rem; }
+  .hero .hero__cta .btn { flex: 1; min-width: 0; padding: .9rem .6rem; font-size: .78rem; letter-spacing: .06em; white-space: nowrap; justify-content: center; text-align: center; }
   .anim .hero__media > img:first-child { animation: aparecerFachada 1.4s cubic-bezier(.2,.7,.2,1) both; }
 
   /* categorias: o gomo de bambu fica na borda, sem passar por cima do texto */
@@ -1127,3 +1127,23 @@ body { background: var(--papel); padding-top: calc(var(--altura-header) + env(sa
 .whats-float { transition: scale .2s, opacity .25s, translate .25s; }
 .cta-na-tela .whats-float { opacity: 0; translate: 0 20px; pointer-events: none; }
 @media (max-width: 900px) { .so-desktop { display: none; } }
+
+/* ---------- Celular: nada passa da largura da tela ----------
+   Os botões da seção "Visite" usam a mesma classe da abertura (.hero__cta). O botão do Instagram
+   não quebrava linha e alargava a coluna para 378px: o mapa e o ramo saíam da tela e o celular
+   reduzia a página inteira para caber, deixando tudo torto. */
+@media (max-width: 900px) {
+  .visite__inner { grid-template-columns: minmax(0, 1fr); }
+  .visite__inner > * { min-width: 0; }
+  .visite .hero__cta { flex-direction: column; align-items: stretch; gap: .6rem; }
+  .visite .hero__cta .btn { width: 100%; min-width: 0; padding-inline: 1rem; }
+  .visite .btn--ghost { text-transform: none; letter-spacing: .02em; font-size: .9rem; overflow-wrap: anywhere; }
+  .mapa__ramo { right: 0; }
+  .mapa__panda { left: 0; }
+
+  /* peça aberta: quantidade e "Adicionar à sacola" na mesma altura, texto numa linha só */
+  .qtd-linha { align-items: center; gap: .6rem; }
+  .qtd { flex: none; height: 50px; }
+  .qtd button { width: 36px; height: 48px; }
+  .qtd-linha .btn { flex: 1; min-width: 0; min-height: 50px; padding: .8rem .9rem; font-size: clamp(.72rem, 3.3vw, .85rem); letter-spacing: .05em; white-space: nowrap; }
+}
