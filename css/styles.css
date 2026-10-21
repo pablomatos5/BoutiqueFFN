@@ -76,7 +76,7 @@ h1, h2, h3 { line-height: 1.12; margin: 0 0 .5em; }
 .topbar { background: var(--gradiente-ouro); color: var(--noite); text-align: center; font-size: .75rem; font-weight: 700; letter-spacing: .04em; }
 .topbar p { margin: 0; padding: .5rem 16px; }
 
-.header { position: sticky; top: 0; z-index: 40; background: var(--noite); color: var(--creme); border-bottom: 1px solid rgba(201, 161, 74, .25); }
+.header { position: fixed; top: 0; left: 0; right: 0; z-index: 40; background: var(--noite); color: var(--creme); border-bottom: 1px solid rgba(201, 161, 74, .25); }
 .header__inner { display: flex; align-items: center; justify-content: space-between; height: 76px; gap: 1rem; }
 
 .marca { display: inline-flex; align-items: center; gap: .7rem; text-decoration: none; }
@@ -1072,14 +1072,18 @@ html { -webkit-tap-highlight-color: transparent; }
   .modal__media .sem-foto { aspect-ratio: 4 / 3; }
 }
 
-/* ---------- iOS 26: área do relógio e da barra do Safari ----------
-   O Safari deixa essa área transparente e o conteúdo da página aparece por trás ao rolar.
-   Pintamos tudo acima do cabeçalho fixo com a cor dele. Na loja, só depois que a faixa
-   dourada do topo saiu da tela (classe is-compacto, ligada pelo efeitos.js ao rolar). */
-.header::before {
-  content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: 100vh;
-  background: var(--noite); pointer-events: none; display: none;
-}
-.header--finalizar::before, .header.is-compacto::before { display: block; }
-html { background: var(--noite); }
-body { background: var(--papel); }
+/* ---------- Cabeçalho fixo (iOS 26) ----------
+   O Safari no iOS 26 pinta a área do relógio e da barra de endereço com a cor do elemento
+   FIXO no topo. Com cabeçalho "sticky" ele não reconhecia e mostrava a página por trás.
+   O cabeçalho é fixo em todas as páginas; o corpo reserva o espaço dele.
+   Na loja, a faixa dourada fica dentro do cabeçalho e recolhe ao rolar (só transform, sem mexer no layout). */
+:root { --altura-topbar: 34px; --altura-header: 76px; }
+html { background: var(--noite); scroll-padding-top: calc(var(--altura-header) + 12px); }
+body { background: var(--papel); padding-top: calc(var(--altura-header) + env(safe-area-inset-top)); }
+.pagina-loja { padding-top: calc(var(--altura-topbar) + var(--altura-header) + env(safe-area-inset-top)); }
+.pagina-finalizar { --altura-header: 68px; }
+.header { padding-top: env(safe-area-inset-top); transition: transform .3s ease; }
+.header .topbar { height: var(--altura-topbar); display: flex; align-items: center; }
+.header .topbar__grupo { padding-block: 0; }
+.header--loja.is-compacto { transform: translateY(calc(-1 * var(--altura-topbar))); }
+.pagina-finalizar .header { background: var(--noite); }

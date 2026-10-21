@@ -60,7 +60,11 @@
     document.querySelectorAll("#chipsCategoria .aba-cat").forEach((c) => {
       const ativa = c.dataset.categoria === categoria;
       c.setAttribute("aria-selected", String(ativa));
-      if (ativa && !termo) c.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+      // centraliza a aba ativa rolando só a linha de abas (scrollIntoView rolava a página inteira)
+      if (ativa && !termo) {
+        const linha = c.parentElement;
+        linha.scrollTo({ left: c.offsetLeft - (linha.clientWidth - c.clientWidth) / 2, behavior: "smooth" });
+      }
     });
   }
 
