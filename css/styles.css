@@ -1147,3 +1147,10 @@ body { background: var(--papel); padding-top: calc(var(--altura-header) + env(sa
   .qtd button { width: 36px; height: 48px; }
   .qtd-linha .btn { flex: 1; min-width: 0; min-height: 50px; padding: .8rem .9rem; font-size: clamp(.72rem, 3.3vw, .85rem); letter-spacing: .05em; white-space: nowrap; }
 }
+
+/* ---------- Assinatura do time de desenvolvimento (Koraki), igual à do site do Pérolas ---------- */
+.koraki-mark { --koraki-cut: var(--noite); display: inline-flex; align-items: center; justify-content: center; gap: .4rem; margin: .4rem 0 0; color: var(--ouro-claro); opacity: .75; font-size: .72rem; letter-spacing: .02em; transition: opacity .3s; }
+.koraki-mark svg { width: 1.05rem; height: 1.05rem; flex: none; }
+.koraki-mark b { font-weight: 600; font-size: .88rem; }
+.koraki-mark:hover { opacity: 1; }
+.rodape-simples .koraki-mark { --koraki-cut: var(--papel); color: var(--cinza); }
