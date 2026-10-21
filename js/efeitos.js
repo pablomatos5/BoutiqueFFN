@@ -39,6 +39,13 @@
   addEventListener("scroll", conferirRolagem, { passive: true });
   conferirRolagem();
 
+  /* ---------- WhatsApp flutuante some enquanto os botões da abertura estão na tela ---------- */
+  // no celular ele cobria o botão "WhatsApp" da própria abertura
+  const ctaAbertura = $(".hero .hero__cta");
+  if (ctaAbertura) {
+    new IntersectionObserver(([e]) => document.body.classList.toggle("cta-na-tela", e.isIntersecting)).observe(ctaAbertura);
+  }
+
   if (reduzir) return;
   raiz.classList.add("anim");
 

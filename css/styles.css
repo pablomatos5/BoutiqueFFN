@@ -1087,3 +1087,43 @@ body { background: var(--papel); padding-top: calc(var(--altura-header) + env(sa
 .header .topbar__grupo { padding-block: 0; }
 .header--loja.is-compacto { transform: translateY(calc(-1 * var(--altura-topbar))); }
 .pagina-finalizar .header { background: var(--noite); }
+
+/* ---------- Abertura no celular: a fachada da loja é o fundo ----------
+   No celular a primeira tela mostrava só texto e a foto ficava lá embaixo. Agora a fachada
+   (letreiro dourado + panda) ocupa a tela inteira e o texto entra por cima, na parte escura. */
+@media (max-width: 900px) {
+  .hero {
+    display: flex; flex-direction: column; justify-content: flex-end;
+    min-height: min(calc(100svh - var(--altura-topbar) - var(--altura-header) - env(safe-area-inset-top)), 780px);
+  }
+  .hero__inner { position: static; display: block; padding-block: 0 2rem; }
+  .hero__media { position: absolute; inset: 0; z-index: 0; translate: none; justify-self: stretch; }
+  .hero__media > img:first-child {
+    width: 100%; height: 100%; aspect-ratio: auto; object-fit: cover; object-position: 50% 0;
+    border: 0; border-radius: 0; box-shadow: none;
+  }
+  .hero__media::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg, rgba(14, 22, 19, .35) 0%, rgba(14, 22, 19, 0) 18%, rgba(14, 22, 19, .55) 42%, rgba(14, 22, 19, .94) 58%, var(--noite) 70%);
+  }
+  .hero__panda { display: none; }
+  .hero__bambu { z-index: 1; }
+  .hero__folhas { z-index: 1; }
+  .hero__text { position: relative; z-index: 2; }
+  .hero .eyebrow { display: inline-flex; align-items: center; gap: .45rem; padding: .35rem .8rem; margin-bottom: .9rem; border: 1px solid rgba(201, 161, 74, .55); border-radius: 999px; background: rgba(14, 22, 19, .7); font-size: .66rem; letter-spacing: .14em; }
+  .hero .eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: #3ecf6e; box-shadow: 0 0 0 3px rgba(62, 207, 110, .25); }
+  .hero h1 { font-size: clamp(1.85rem, 8.4vw, 2.4rem); line-height: 1.08; text-shadow: 0 2px 18px rgba(0, 0, 0, .5); }
+  .hero__lead { font-size: .95rem; margin-top: .8rem; }
+  .hero__cta { flex-wrap: nowrap; gap: .6rem; margin-top: 1.25rem; }
+  .hero__cta .btn { flex: 1; min-width: 0; padding: .9rem .6rem; font-size: .78rem; letter-spacing: .06em; white-space: nowrap; justify-content: center; text-align: center; }
+  .anim .hero__media > img:first-child { animation: aparecerFachada 1.4s cubic-bezier(.2,.7,.2,1) both; }
+
+  /* categorias: o gomo de bambu fica na borda, sem passar por cima do texto */
+  .cat { padding: .95rem 1.6rem .95rem 1rem; }
+  .cat::after { right: 8px; width: 6px; }
+  .cat span { font-size: .95rem; line-height: 1.2; }
+}
+@keyframes aparecerFachada { from { opacity: 0; scale: 1.08; } to { opacity: 1; scale: 1; } }
+.whats-float { transition: scale .2s, opacity .25s, translate .25s; }
+.cta-na-tela .whats-float { opacity: 0; translate: 0 20px; pointer-events: none; }
+@media (max-width: 900px) { .so-desktop { display: none; } }
